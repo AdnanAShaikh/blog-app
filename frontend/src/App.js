@@ -9,7 +9,6 @@ import CreateBlog from "./pages/CreateBlog";
 import { Toaster } from "react-hot-toast";
 import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
-import Homepage from "./pages/Homepage";
 
 function App() {
   return (
