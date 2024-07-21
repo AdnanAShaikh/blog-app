@@ -17,10 +17,13 @@ function App() {
       <Header />
       <Toaster />
       <Routes>
-        <Route path="/" element={<Blogs />} />
-        <Route path="/blogs" element={<Blogs />} />
+        <Route path="https://blog-app-62et.onrender.com/" element={<Blogs />} />
         <Route
-          path="/my-blogs"
+          path="https://blog-app-62et.onrender.com/blogs"
+          element={<Blogs />}
+        />
+        <Route
+          path="https://blog-app-62et.onrender.com/my-blogs"
           element={
             <AuthRoute>
               <UserBlogs />
@@ -28,7 +31,7 @@ function App() {
           }
         />
         <Route
-          path="/create-blog"
+          path="https://blog-app-62et.onrender.com/create-blog"
           element={
             <AuthRoute>
               <CreateBlog />
@@ -36,15 +39,21 @@ function App() {
           }
         />
         <Route
-          path="/blog-details/:id"
+          path="https://blog-app-62et.onrender.com/blog-details/:id"
           element={
             <AuthRoute>
               <BlogDetails />
             </AuthRoute>
           }
         />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="https://blog-app-62et.onrender.com/login"
+          element={<Login />}
+        />
+        <Route
+          path="https://blog-app-62et.onrender.com/register"
+          element={<Register />}
+        />
       </Routes>
     </>
   );
