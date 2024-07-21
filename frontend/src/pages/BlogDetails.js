@@ -14,7 +14,7 @@ const BlogDetails = () => {
   const getBlogDetail = async () => {
     try {
       const { data } = await axios.get(
-        `http://localhost:8081/api/v1/blog/get-blog/${id}`
+        `https://blog-app-62et.onrender.com/api/v1/blog/get-blog/${id}`
       );
       if (data?.success) {
         setBlog(data?.blog);
