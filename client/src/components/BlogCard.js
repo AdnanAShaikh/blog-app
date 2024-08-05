@@ -22,7 +22,7 @@ export default function BlogCard({
   const handleDelete = async () => {
     try {
       const { data } = await axios.delete(
-        `http://localhost:8081/api/v1/blog/delete-blog/${id}`
+        `https://blog-app-l1n9.onrender.com/api/v1/blog/delete-blog/${id}`
       );
       if (data?.success) {
         window.location.reload();
