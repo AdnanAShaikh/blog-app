@@ -5,6 +5,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { authActions } from "../redux/store";
 import toast from "react-hot-toast";
+import SignInGoogle from "../components/SignInGoogle";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,23 +29,25 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "https://blog-app-62et.onrender.com/api/v1/user/login",
+        "http://localhost:8081/api/v1/user/login",
         {
           email: inputs.email,
           password: inputs.password,
         }
       );
       if (data.success) {
+        console.log(data);
+        const { token } = data;
         dispatch(authActions.login());
         localStorage.setItem("userId", data?.user._id);
+        // localStorage.setItem("token", token);
         toast.success("User login Successfully");
-        navigate("/");
+        navigate("/blogs");
       }
     } catch (error) {
       console.log(error);
-      if (error.response.status === 404) {
-        toast.error("Not a Registered User");
-      }
+      // if (error.response.status === 404) {
+      toast.error("Not a Registered User");
     }
   };
 
@@ -79,9 +82,11 @@ const Login = () => {
                     required
                   />
                 </Form.Group>
-                <Button variant="primary" type="submit" className="w-100 mb-3">
+                <Button variant="primary" type="submit" className="center mb-3">
                   Submit
                 </Button>
+                <p style={{ textAlign: "center" }}>Or</p>
+                <SignInGoogle />
                 <Button
                   variant="link"
                   onClick={() => navigate("/register")}

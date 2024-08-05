@@ -26,7 +26,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://blog-app-62et.onrender.com/api/v1/user/register",
+        "http://localhost:8081/api/v1/user/register",
         {
           username: inputs.name,
           email: inputs.email,
@@ -41,10 +41,9 @@ const Register = () => {
       }
     } catch (error) {
       console.log(error);
-
-      if (error.response.status === 401) {
-        alert("Use a different Email !");
-      }
+      console.log(error);
+      // if (error.response.status === 401) {
+      // alert("Use a different Email !");
     }
   };
 

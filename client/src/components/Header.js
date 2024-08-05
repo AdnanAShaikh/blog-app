@@ -33,7 +33,7 @@ const Header = () => {
 
   return (
     <Navbar className="px-3 ">
-      <Navbar.Brand href="/">Blog App</Navbar.Brand>
+      <Navbar.Brand href="/blogs">Blog App</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         {isLogin && (

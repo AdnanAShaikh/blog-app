@@ -7,6 +7,7 @@ const {
   getBlogByIdController,
   getUserBlogByIdController,
 } = require("../controllers/blogController");
+const { authenticateToken } = require("../middlewares/jwt");
 
 const router = express.Router();
 

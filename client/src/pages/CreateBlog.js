@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import toast from "react-hot-toast";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
 
 const CreateBlog = () => {
   const id = localStorage.getItem("userId");
@@ -10,8 +12,8 @@ const CreateBlog = () => {
   const [inputs, setInputs] = useState({
     title: "",
     description: "",
-    image: "",
   });
+  const [imageURL, setImageURL] = useState("");
 
   // input change
   const handleChange = (e) => {
@@ -26,11 +28,11 @@ const CreateBlog = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "https://blog-app-62et.onrender.com/api/v1/blog/create-blog",
+        "http://localhost:8081/api/v1/blog/create-blog",
         {
           title: inputs.title,
           description: inputs.description,
-          image: inputs.image,
+          image: imageURL,
           user: id,
         }
       );
@@ -40,6 +42,23 @@ const CreateBlog = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(selectedFile.name);
+
+      fileRef.put(selectedFile).then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((downloadURL) => {
+          console.log(downloadURL);
+          setImageURL(downloadURL);
+        });
+      });
+    } else {
+      console.log("no file selected !");
     }
   };
 
@@ -80,13 +99,12 @@ const CreateBlog = () => {
                   />
                 </Form.Group>
                 <Form.Group controlId="formImage" className="mb-3">
-                  <Form.Label>Image URL</Form.Label>
+                  <Form.Label>Image File</Form.Label>
                   <Form.Control
-                    type="text"
-                    placeholder="Enter image URL"
+                    type="file"
+                    placeholder="Image File"
                     name="image"
-                    value={inputs.image}
-                    onChange={handleChange}
+                    onChange={handleFileChange}
                     required
                   />
                 </Form.Group>

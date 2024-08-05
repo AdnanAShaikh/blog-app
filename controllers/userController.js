@@ -1,3 +1,4 @@
+const { generateToken, authenticateToken } = require("../middlewares/jwt");
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 
@@ -70,10 +71,11 @@ exports.loginController = async (req, res) => {
     if (!isMatched) {
       return res.status(401).json({ message: "Invalid Username or Password" });
     }
+    const token = generateToken(user);
 
     return res
       .status(200)
-      .json({ success: true, message: "Login successful", user });
+      .json({ success: true, message: "Login successful", user, token });
   } catch (err) {
     console.log("Error: ", err);
     return res.status(500).json({ message: "Internal Server Error" });

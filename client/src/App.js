@@ -9,6 +9,7 @@ import CreateBlog from "./pages/CreateBlog";
 import { Toaster } from "react-hot-toast";
 import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
+import UnAuthRoute from "./pages/UnAuthRoute";
 
 function App() {
   return (
@@ -16,13 +17,10 @@ function App() {
       <Header />
       <Toaster />
       <Routes>
-        <Route path="https://blog-app-62et.onrender.com/" element={<Blogs />} />
+        <Route path="/" element={<Blogs />} />
+        <Route path="/blogs" element={<Blogs />} />
         <Route
-          path="https://blog-app-62et.onrender.com/blogs"
-          element={<Blogs />}
-        />
-        <Route
-          path="https://blog-app-62et.onrender.com/my-blogs"
+          path="/my-blogs"
           element={
             <AuthRoute>
               <UserBlogs />
@@ -30,7 +28,7 @@ function App() {
           }
         />
         <Route
-          path="https://blog-app-62et.onrender.com/create-blog"
+          path="/create-blog"
           element={
             <AuthRoute>
               <CreateBlog />
@@ -38,7 +36,7 @@ function App() {
           }
         />
         <Route
-          path="https://blog-app-62et.onrender.com/blog-details/:id"
+          path="/blog-details/:id"
           element={
             <AuthRoute>
               <BlogDetails />
@@ -46,12 +44,20 @@ function App() {
           }
         />
         <Route
-          path="https://blog-app-62et.onrender.com/login"
-          element={<Login />}
+          path="/login"
+          element={
+            <UnAuthRoute>
+              <Login />
+            </UnAuthRoute>
+          }
         />
         <Route
-          path="https://blog-app-62et.onrender.com/register"
-          element={<Register />}
+          path="/register"
+          element={
+            <UnAuthRoute>
+              <Register />
+            </UnAuthRoute>
+          }
         />
       </Routes>
     </>
