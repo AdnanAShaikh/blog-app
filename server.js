@@ -30,13 +30,12 @@ app.use("/api/v1/blog", blogRoutes);
 
 // Catch-all handler to serve the React app
 
-const PORT = process.env.PORT || 3715;
-
 // Catch-all handler to serve the React app for all other routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
+const PORT = process.env.PORT || 3715;
 app.listen(PORT, () => {
   console.log(
     `Server running in ${process.env.DEV_MODE} mode on port ${PORT}`.bgGreen
