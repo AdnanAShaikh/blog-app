@@ -14,7 +14,7 @@ const BlogDetails = () => {
   const getBlogDetail = async () => {
     try {
       const { data } = await axios.get(
-        `https://blog-app-l1n9.onrender.com/api/v1/blog/get-blog/${id}`
+        `https://blog-app-2-u2io.onrender.com/api/v1/blog/get-blog/${id}`
       );
       if (data?.success) {
         setBlog(data?.blog);
@@ -46,7 +46,7 @@ const BlogDetails = () => {
     e.preventDefault();
     try {
       const { data } = await axios.put(
-        `https://blog-app-l1n9.onrender.com/api/v1/blog/update-blog/${id}`,
+        `https://blog-app-2-u2io.onrender.com/api/v1/blog/update-blog/${id}`,
         {
           title: inputs.title,
           description: inputs.description,

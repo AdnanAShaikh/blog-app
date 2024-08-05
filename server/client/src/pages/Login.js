@@ -29,7 +29,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "https://blog-app-l1n9.onrender.com/api/v1/user/login",
+        "https://blog-app-2-u2io.onrender.com/api/v1/user/login",
         {
           email: inputs.email,
           password: inputs.password,

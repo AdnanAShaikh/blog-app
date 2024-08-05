@@ -22,9 +22,12 @@ const SignInGoogle = () => {
       // Access user information
       console.log(user.displayName, user.email, user.photoURL);
 
-      await axios.post("http://localhost:8081/api/v1/user/login", {
-        email: user.email,
-      });
+      await axios.post(
+        "https://blog-app-2-u2io.onrender.com/api/v1/user/login",
+        {
+          email: user.email,
+        }
+      );
 
       // Handle user data and redirect or dispatch actions as needed
       // For example:

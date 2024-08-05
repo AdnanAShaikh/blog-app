@@ -28,7 +28,7 @@ const CreateBlog = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "https://blog-app-l1n9.onrender.com/api/v1/blog/create-blog",
+        "https://blog-app-2-u2io.onrender.com/api/v1/blog/create-blog",
         {
           title: inputs.title,
           description: inputs.description,
