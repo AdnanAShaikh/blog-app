@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "build")));
 
 // routes
 // user routes
@@ -33,7 +33,7 @@ app.use("/api/v1/blog", blogRoutes);
 
 // Catch-all handler to serve the React app for all other routes
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+  res.sendFile(path.resolve(__dirname, "build", "index.html"));
 });
 
 const PORT = process.env.PORT || 3715;
