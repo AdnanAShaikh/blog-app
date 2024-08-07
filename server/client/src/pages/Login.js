@@ -43,7 +43,7 @@ const Login = () => {
     try {
       const { data } = await axios.post(
         // "http:localhost:8081/api/v1/user/login",
-        "https://blog-app-2-u2io.onrender.com/api/v1/user/login",
+        "https://blog-app-2-5s8y.onrender.com/api/v1/user/login",
         {
           email: inputs.email,
           password: inputs.password,

@@ -29,7 +29,7 @@ const CreateBlog = () => {
     toast.loading("Fetching API to create blog");
     try {
       const { data } = await axios.post(
-        "https://blog-app-2-u2io.onrender.com/api/v1/blog/create-blog",
+        "https://blog-app-2-5s8y.onrender.com/api/v1/blog/create-blog",
         {
           title: inputs.title,
           description: inputs.description,

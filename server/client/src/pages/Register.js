@@ -44,7 +44,7 @@ const Register = () => {
     }
     try {
       const response = await axios.post(
-        "https://blog-app-2-u2io.onrender.com/api/v1/user/register",
+        "https://blog-app-2-5s8y.onrender.com/api/v1/user/register",
         {
           username: inputs.name,
           email: inputs.email,

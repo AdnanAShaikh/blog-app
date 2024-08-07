@@ -25,7 +25,9 @@ const Header = () => {
 
         navigate("/login");
         localStorage.clear();
-        await axios.get("http://localhost:8081/api/v1/user/logout");
+        await axios.get(
+          "https://blog-app-2-5s8y.onrender.com/api/v1/user/logout"
+        );
       } else {
         alert("You chose to remained Logged in...");
       }

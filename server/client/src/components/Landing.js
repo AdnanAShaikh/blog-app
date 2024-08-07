@@ -19,7 +19,7 @@ const Landing = () => {
   useEffect(() => {
     async function getBlogs() {
       const { data } = await axios.get(
-        "https://blog-app-2-u2io.onrender.com/api/v1/blog/all-blogs"
+        "https://blog-app-2-5s8y.onrender.com/api/v1/blog/all-blogs"
       );
       if (data?.success) {
         console.log(data);

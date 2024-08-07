@@ -14,7 +14,7 @@ const ViewBlog = () => {
   const getBlogDetail = async () => {
     try {
       const { data } = await axios.get(
-        `https://blog-app-2-u2io.onrender.com/api/v1/blog/get-blog/${id}`
+        `https://blog-app-2-5s8y.onrender.com/api/v1/blog/get-blog/${id}`
       );
       if (data?.success) {
         // setBlog(data?.blog);
