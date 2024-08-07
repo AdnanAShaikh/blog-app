@@ -15,7 +15,7 @@ const router = express.Router();
 router.get("/all-blogs", getAllBlogsController);
 
 //POST create blog
-router.post("/create-blog", createBlogController);
+router.post("/create-blog", authenticateToken, createBlogController);
 
 //PUT update blog
 router.put("/update-blog/:id", updateBlogController);

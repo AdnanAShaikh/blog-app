@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../redux/store";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const Header = () => {
   //global state
@@ -16,13 +17,15 @@ const Header = () => {
 
   const [value, setValue] = useState();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
       if (window.confirm("Do you want to Log Out?")) {
         dispatch(authActions.logout());
         toast.success("Logout Successfully");
+
         navigate("/login");
         localStorage.clear();
+        await axios.get("http://localhost:8081/api/v1/user/logout");
       } else {
         alert("You chose to remained Logged in...");
       }
@@ -33,7 +36,7 @@ const Header = () => {
 
   return (
     <Navbar className="px-3 ">
-      <Navbar.Brand href="/blogs">Blog App</Navbar.Brand>
+      <Navbar.Brand href={isLogin ? "/blogs" : "/"}>Blog App</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         {isLogin && (

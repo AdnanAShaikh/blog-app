@@ -26,6 +26,7 @@ const CreateBlog = () => {
   // form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    toast.loading("Fetching API to create blog");
     try {
       const { data } = await axios.post(
         "https://blog-app-2-u2io.onrender.com/api/v1/blog/create-blog",
@@ -37,6 +38,7 @@ const CreateBlog = () => {
         }
       );
       if (data?.success) {
+        toast.dismiss();
         toast.success("Blog Created");
         navigate("/my-blogs");
       }

@@ -7,13 +7,14 @@ exports.getAllBlogsController = async (req, res) => {
   try {
     const blogs = await blogModel.find({}).populate("user");
     if (blogs.length === 0) {
-      return res.status(200).json({ success: false, message: "no blog found" });
+      return res.status(404).json({ success: false, message: "no blog found" });
     }
     return res.status(200).json({
       success: true,
       BlogCount: blogs.length,
       message: "All blogs list",
       blogs,
+      user,
     });
   } catch (err) {
     console.log("Error: ", err);

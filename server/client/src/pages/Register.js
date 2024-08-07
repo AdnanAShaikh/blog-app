@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import toast from "react-hot-toast";
 import axios from "axios";
+import validator from "validator";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,6 +25,23 @@ const Register = () => {
   //form handle
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(inputs.password);
+    console.log(inputs.name);
+    toast.loading("Registering User");
+    if (!validator.isEmail(inputs.email)) {
+      toast.dismiss();
+      return toast.error("Enter email in a valid form");
+    }
+
+    if (inputs.password.length < 6) {
+      toast.dismiss();
+      return toast.error("Password should be greater than 6 characters!");
+    }
+
+    if (inputs.name.length < 3) {
+      toast.dismiss();
+      return toast.error("Username should be greater than 3 characters!");
+    }
     try {
       const response = await axios.post(
         "https://blog-app-2-u2io.onrender.com/api/v1/user/register",
@@ -36,10 +54,14 @@ const Register = () => {
       const { data } = response;
 
       if (data.success) {
+        toast.dismiss();
+
         toast.success("User Register Successfully");
         navigate("/login");
       }
     } catch (error) {
+      toast.dismiss();
+      toast.error("Internal Server Error");
       console.log(error);
       console.log(error);
       // if (error.response.status === 401) {

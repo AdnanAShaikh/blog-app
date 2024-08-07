@@ -10,6 +10,8 @@ import { Toaster } from "react-hot-toast";
 import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
 import UnAuthRoute from "./pages/UnAuthRoute";
+import Landing from "./components/Landing";
+import ViewBlog from "./pages/ViewBlog";
 
 function App() {
   return (
@@ -17,7 +19,7 @@ function App() {
       <Header />
       <Toaster />
       <Routes>
-        <Route path="/" element={<Blogs />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route
           path="/my-blogs"
@@ -59,6 +61,7 @@ function App() {
             </UnAuthRoute>
           }
         />
+        <Route path="/get-blog/:id" element={<ViewBlog />} />
       </Routes>
     </>
   );

@@ -1,31 +1,27 @@
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
 
-const generateToken = (user) => {
-  const payload = {
-    id: user._id,
-  };
-
-  const secret = "ABC123";
-
-  const options = {
-    expiresIn: "24h",
-  };
-
-  return jwt.sign(payload, secret, options);
+const generateToken = (id) => {
+  const maxAge = 3 * 24 * 60 * 60;
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: maxAge });
 };
 
 const authenticateToken = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1];
-  if (!token) return res.status(401).send("Access Denied");
+  const token = req.cookies.jwt;
 
-  try {
-    const secret = "ABC123";
-    const verified = jwt.verify(token, secret);
-    console.log(verified);
-    req.user = verified;
-    next();
-  } catch (error) {
-    res.status(400).send("Invalid Token");
+  if (token) {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+      if (err) {
+        console.log(err.message);
+        // res.redirect("/login");
+      } else {
+        console.log(decodedToken);
+        next();
+      }
+    });
+  } else {
+    // res.redirect("/login");
   }
 };
 

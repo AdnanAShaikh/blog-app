@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Button, Image, Row, Col } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -32,6 +32,14 @@ export default function BlogCard({
     }
   };
 
+  const handleView = async () => {
+    try {
+      navigate(`/blog-details/${id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Card
       className="mb-3 shadow-sm"
@@ -41,7 +49,7 @@ export default function BlogCard({
         <Row className="align-items-center">
           <Col xs="auto">
             <Image
-              src={`https://ui-avatars.com/api/?name=${username}`}
+              src={require("../download.jpeg")}
               roundedCircle
               alt={username}
               style={{ width: "50px", height: "50px" }}
@@ -73,6 +81,9 @@ export default function BlogCard({
         alt="Blog image"
       />
       <Card.Body>
+        <Link to={`/get-blog/${id}`} className="text-blue-600 hover:underline">
+          View Details
+        </Link>
         <Card.Title>{title}</Card.Title>
         <Card.Text>{description}</Card.Text>
       </Card.Body>

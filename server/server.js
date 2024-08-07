@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const colors = require("colors");
 const dotenv = require("dotenv");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 
 // env config
 dotenv.config();
@@ -15,7 +16,14 @@ db();
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // replace with your client domain
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(morgan("dev"));
 
@@ -43,3 +51,5 @@ app.listen(PORT, () => {
       .white
   );
 });
+
+module.exports = app;

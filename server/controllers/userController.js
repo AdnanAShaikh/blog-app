@@ -1,6 +1,7 @@
 const { generateToken, authenticateToken } = require("../middlewares/jwt");
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 //get all users
 exports.getAllUsers = async (req, res) => {
@@ -71,7 +72,9 @@ exports.loginController = async (req, res) => {
     if (!isMatched) {
       return res.status(401).json({ message: "Invalid Username or Password" });
     }
-    const token = generateToken(user);
+    const token = generateToken(user._id);
+
+    res.cookie("jwt", token, { httpOnly: true });
 
     return res
       .status(200)
@@ -80,4 +83,8 @@ exports.loginController = async (req, res) => {
     console.log("Error: ", err);
     return res.status(500).json({ message: "Internal Server Error" });
   }
+};
+
+exports.logoutController = async (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
 };
