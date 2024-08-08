@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/static/css/main.3a37ab77.css",
-    "main.js": "/static/js/main.abed626a.js",
+    "main.js": "/static/js/main.5cf55640.js",
     "static/js/453.258b012d.chunk.js": "/static/js/453.258b012d.chunk.js",
     "static/media/google-signin-button.png": "/static/media/google-signin-button.9887b46ca202e1a29e0b.png",
     "index.html": "/index.html",
     "main.3a37ab77.css.map": "/static/css/main.3a37ab77.css.map",
-    "main.abed626a.js.map": "/static/js/main.abed626a.js.map",
+    "main.5cf55640.js.map": "/static/js/main.5cf55640.js.map",
     "453.258b012d.chunk.js.map": "/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3a37ab77.css",
-    "static/js/main.abed626a.js"
+    "static/js/main.5cf55640.js"
   ]
 }

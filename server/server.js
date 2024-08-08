@@ -16,10 +16,10 @@ db();
 const app = express();
 
 // middlewares
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(
   cors({
-    origin: ["https://blog-app-2-5s8y.onrender.com", "http://localhost:3000"],
+    origin: "http://localhost:3000",
   })
 );
 

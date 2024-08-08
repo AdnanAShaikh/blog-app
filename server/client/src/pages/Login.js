@@ -29,6 +29,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     toast.loading("Checking Credentials");
+    console.log("Email:", inputs.email);
+    console.log("Password:", inputs.password);
     if (!validator.isEmail(inputs.email)) {
       toast.dismiss();
       return toast.error("Enter email in a valid form");
@@ -36,24 +38,20 @@ const Login = () => {
 
     if (inputs.password.length <= 6) {
       toast.dismiss();
-
       return toast.error("Password should be greater than 6 characters!");
     }
 
     try {
       const { data } = await axios.post(
-        // "http:localhost:8081/api/v1/user/login",
         "https://blog-app-2-5s8y.onrender.com/api/v1/user/login",
         {
           email: inputs.email,
           password: inputs.password,
         }
-        // { withCredentials: true }
       );
-      if (data.success) {
+      if (data?.success) {
         toast.dismiss();
         console.log(data);
-        const { token } = data;
         dispatch(authActions.login());
         localStorage.setItem("userId", data?.user._id);
         // localStorage.setItem("token", token);
@@ -63,8 +61,8 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      // if (error.response.status === 404) {
-      return toast.error("Not a Registered User");
+      toast.dismiss();
+      return toast.error("Internal Server error");
     }
   };
 

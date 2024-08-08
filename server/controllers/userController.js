@@ -36,6 +36,7 @@ exports.registerController = async (req, res) => {
     //save new user
     const user = new userModel({ username, email, password: hashedPassword });
     await user.save();
+
     return res.status(201).json({
       success: true,
       message: "Success new user created !!",
@@ -72,13 +73,13 @@ exports.loginController = async (req, res) => {
     if (!isMatched) {
       return res.status(401).json({ message: "Invalid Username or Password" });
     }
-    const token = generateToken(user._id);
+    // const token = generateToken(user._id);
 
-    res.cookie("jwt", token, { httpOnly: true });
+    // res.cookie("jwt", token, { httpOnly: true });
 
     return res
       .status(200)
-      .json({ success: true, message: "Login successful", user, token });
+      .json({ success: true, message: "Login successful", user });
   } catch (err) {
     console.log("Error: ", err);
     return res.status(500).json({ message: "Internal Server Error" });
