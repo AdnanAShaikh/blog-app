@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { LinkContainer } from "react-router-bootstrap";
-import { Navbar, Nav, NavDropdown, Button } from "react-bootstrap";
+import React from "react";
+import { Navbar, Nav, Button, Dropdown, Image } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../redux/store";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -14,8 +13,6 @@ const Header = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [value, setValue] = useState();
 
   const handleLogout = async () => {
     try {
@@ -36,55 +33,150 @@ const Header = () => {
     }
   };
 
+  const userId = localStorage.getItem("userId");
+
+  function handleProfile() {
+    let name = "";
+    const getUserName = async () => {
+      const { data } = await axios.get(
+        `https://blog-app-2-5s8y.onrender.com/api/v1/user/id/${userId}`
+      );
+      if (data.success) {
+        console.log("this user", data);
+        name = data.user;
+        navigate(`/user/${name}`);
+      }
+    };
+    getUserName();
+  }
+
   return (
-    <Navbar className="px-3 ">
-      <Navbar.Brand href={isLogin ? "/blogs" : "/"}>Blog App</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        {isLogin && (
-          <Nav className="mx-auto ">
-            <LinkContainer to="/blogs">
-              <Nav.Link>Blogs</Nav.Link>
-            </LinkContainer>
+    <>
+      {" "}
+      <style type="text/css">
+        {`
+      .dropdown-item:focus,
+      .dropdown-item:active {
+        background-color: transparent !important;
+        color: inherit;
+      }
+    `}
+      </style>
+      <Navbar expand="lg" bg="dark" className=" px-3">
+        <Navbar.Brand href={isLogin ? "/blogs" : "/"} className="text-white">
+          Blog App
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="ml-auto justify-content-end flex-grow-1">
+            {isLogin ? (
+              <>
+                <Link
+                  to="/create-blog"
+                  className="text-white"
+                  style={{ textDecoration: "none", marginTop: "6px" }}
+                >
+                  <Nav.Link as={Link} to="/create-blog">
+                    {
+                      <Image
+                        src={require("../create-blog.png")}
+                        style={{
+                          width: "30px", // Adjust size as needed
+                          height: "30px",
+                          objectFit: "contain",
+                        }}
+                      />
+                    }
+                  </Nav.Link>
+                </Link>
 
-            <LinkContainer to="/my-blogs">
-              <Nav.Link>My Blogs</Nav.Link>
-            </LinkContainer>
+                <Nav.Link>
+                  <Link to="/user/all">
+                    <Button variant="tertiary" className="text-white">
+                      All Users
+                    </Button>
+                  </Link>
+                </Nav.Link>
+                <Nav.Link>
+                  <Dropdown align="end">
+                    <Dropdown.Toggle
+                      variant="outline-light"
+                      id="dropdown-user-toggle"
+                      className="d-flex align-items-center"
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        borderColor: "#6c757d",
+                        padding: "8px 16px",
+                        borderRadius: "50px",
+                      }}
+                    >
+                      👤
+                    </Dropdown.Toggle>
 
-            <LinkContainer to="/create-blog">
-              <Nav.Link>Create Blog</Nav.Link>
-            </LinkContainer>
-          </Nav>
-        )}
-        <Nav className="ml-auto">
-          {!isLogin && (
-            <>
-              <LinkContainer to="/login">
-                <Button variant="outline-primary" className="m-1">
+                    <Dropdown.Menu
+                      style={{
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <Dropdown.Item
+                        onClick={handleProfile}
+                        className="d-flex align-items-center"
+                        style={{ padding: "10px 20px" }}
+                      >
+                        <i
+                          className="bi bi-person-circle"
+                          style={{ marginRight: "10px" }}
+                        ></i>
+                        Profile
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+
+                      <Dropdown.Item
+                        onClick={() => navigate("/my-blogs")}
+                        className="d-flex align-items-center"
+                        style={{ padding: "10px 20px" }}
+                      >
+                        <i
+                          className="bi bi-person-circle"
+                          style={{ marginRight: "10px" }}
+                        ></i>
+                        My-Blogs
+                      </Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item
+                        onClick={handleLogout}
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          padding: "10px 20px",
+                        }}
+                      >
+                        <Button
+                          variant="danger"
+                          style={{ borderRadius: "50px" }}
+                        >
+                          Log Out
+                        </Button>
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </Nav.Link>
+              </>
+            ) : (
+              <Nav className="ml-auto">
+                <Nav.Link as={Link} to="/login" className="text-white">
                   Login
-                </Button>
-              </LinkContainer>
-
-              <LinkContainer to="/register">
-                <Button variant="outline-primary" className="m-1">
+                </Nav.Link>
+                <Nav.Link as={Link} to="/register" className="text-white">
                   Register
-                </Button>
-              </LinkContainer>
-            </>
-          )}
-
-          {isLogin && (
-            <Button
-              variant="outline-danger"
-              className="m-1"
-              onClick={handleLogout}
-            >
-              LogOut
-            </Button>
-          )}
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+                </Nav.Link>
+              </Nav>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+    </>
   );
 };
 

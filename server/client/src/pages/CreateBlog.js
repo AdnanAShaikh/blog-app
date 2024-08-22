@@ -26,7 +26,7 @@ const CreateBlog = () => {
   // form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.loading("Fetching API to create blog");
+    toast.loading("Uploading");
     try {
       const { data } = await axios.post(
         "https://blog-app-2-5s8y.onrender.com/api/v1/blog/create-blog",
@@ -38,11 +38,15 @@ const CreateBlog = () => {
         }
       );
       if (data?.success) {
-        toast.dismiss();
-        toast.success("Blog Created");
         navigate("/my-blogs");
+        toast.success("Blog Created");
+        toast.dismiss();
+        toast.dismiss();
       }
     } catch (error) {
+      toast.dismiss();
+      toast.error("Try Again");
+
       console.log(error);
     }
   };
@@ -74,7 +78,7 @@ const CreateBlog = () => {
           <Card className="shadow-lg">
             <Card.Body>
               <Card.Title className="text-center mb-4">
-                Create A Post
+                Create A Blog
               </Card.Title>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formTitle" className="mb-3">

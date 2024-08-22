@@ -5,6 +5,7 @@ import { Container, Row, Col, Alert } from "react-bootstrap";
 
 const UserBlogs = () => {
   const [blogs, setBlogs] = useState([]);
+  const [user, setUser] = useState([]);
 
   // get user blogs
   const getUserBlogs = async () => {
@@ -14,6 +15,7 @@ const UserBlogs = () => {
         `https://blog-app-2-5s8y.onrender.com/api/v1/blog/user-blog/${id}`
       );
       if (data?.success) {
+        setUser(data?.userBlog);
         setBlogs(data?.userBlog.blogs);
       }
     } catch (error) {
@@ -35,9 +37,10 @@ const UserBlogs = () => {
                 id={blog._id}
                 isUser={true}
                 title={blog.title}
+                userImage={user.image}
                 // description={blog.description}
                 image={blog.image}
-                username={blog.user.username}
+                username={user.username}
                 time={blog.createdAt}
               />
             </Col>

@@ -2,8 +2,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  minheight: "100vh";
+  paddingleft: "0px";
+  paddingright: "0px";
 }
 
 body {
   font-family: "roboto", "sans-serif";
+}
+
+.no-underline {
+  text-decoration: none;
+  color: black;
+  padding: 4px;
+}
+
+.no-underline:hover {
+  border: 2px solid black;
+  background-color: grey;
 }

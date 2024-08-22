@@ -4,14 +4,12 @@ import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { authActions } from "../redux/store";
+import toast from "react-hot-toast";
 
 const SignInGoogle = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [inputs, setInputs] = useState({
-    email: "",
-    password: "",
-  });
 
   async function googleLogin() {
     try {
@@ -20,19 +18,25 @@ const SignInGoogle = () => {
       const user = result.user;
 
       // Access user information
-      console.log(user.displayName, user.email, user.photoURL);
+      console.log(user);
+      console.log(user.displayName, user.email, user.photoURL, user.uid);
 
-      await axios.post(
-        "https://blog-app-2-u2io.onrender.com/api/v1/user/login",
+      const { data } = await axios.post(
+        "https://blog-app-2-5s8y.onrender.com/api/v1/user/google/login",
         {
           email: user.email,
+          username: user.displayName,
+          image: user.photoURL,
+          password: user.uid,
         }
       );
-
-      // Handle user data and redirect or dispatch actions as needed
-      // For example:
-      // dispatch(setUserData(user)); // Assuming a setUserData action in Redux
-      navigate("/dashboard"); // Redirect to dashboard
+      if (data.success) {
+        dispatch(authActions.login());
+        localStorage.setItem("userId", data.user._id);
+        toast.success("User login Successfully");
+        console.log(data);
+        navigate("/blogs");
+      }
     } catch (error) {
       console.error("Error signing in with Google:", error);
     }

@@ -67,12 +67,12 @@ exports.updateBlogController = async (req, res) => {
     const { title, description, image } = req.body;
     const blog = await blogModel.findByIdAndUpdate(
       id,
-      { ...req.body },
+      { title, description, image },
       { new: true }
     );
     return res
       .status(200)
-      .json({ success: true, message: "Success update ! ! ", blog });
+      .json({ success: true, message: "Success update!", blog });
   } catch (err) {
     console.log("Error: ", err);
     res.status(500).json({ message: "Internal Server error" });
@@ -112,6 +112,7 @@ exports.getBlogByIdController = async (req, res) => {
     const { id } = req.params;
 
     const blog = await blogModel.findById(id);
+
     if (!blog) {
       return res.status(404).json({ message: "Not FOund blog  !!" });
     }
@@ -142,4 +143,40 @@ exports.getUserBlogByIdController = async (req, res) => {
     console.log("Error", error);
     return res.status(500).json({ message: "Internal server error!" });
   }
+};
+
+exports.commentController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text, postedBy } = req.body;
+
+    const blog = await blogModel.findById(id);
+
+    const user = await userModel.findById(postedBy);
+
+    if (!blog || !user) {
+      return res.status(404).json({ message: "Blog or user not found" });
+    }
+
+    const newComment = {
+      text,
+      postedBy: user.username,
+    };
+
+    blog.comments.push(newComment);
+
+    await blog.save();
+
+    return res.status(200).json({
+      success: true,
+      newComment,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Error adding comment", error });
+  }
+};
+
+exports.unCommentController = (req, res) => {
+  let comment = req.body.comment;
+  comment.postedBy = req.body.userId;
 };

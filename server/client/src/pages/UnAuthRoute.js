@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 
 const UnAuthRoute = ({ children }) => {
   const isLoggedIn = !!localStorage.getItem("userId"); // Convert value into boolean
-  if (isLoggedIn) {
-    return <Navigate to="/" />;
+  if (!isLoggedIn) {
+    return children;
   }
-  return children;
+  return <Navigate to="/blogs" />;
 };
 
 export default UnAuthRoute;

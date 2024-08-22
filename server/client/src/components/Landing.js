@@ -1,67 +1,38 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
 import React from "react";
-import {
-  Navbar,
-  Nav,
-  Container,
-  Row,
-  Col,
-  Button,
-  Card,
-} from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import BlogCard from "./BlogCard";
 
 const Landing = () => {
-  const [blogs, setBlogs] = useState([]);
-
-  useEffect(() => {
-    async function getBlogs() {
-      const { data } = await axios.get(
-        "https://blog-app-2-5s8y.onrender.com/api/v1/blog/all-blogs"
-      );
-      if (data?.success) {
-        console.log(data);
-        setBlogs(data?.blogs.slice(-3));
-      }
-    }
-    getBlogs();
-  }, []);
   return (
-    <div>
-      <Container className="mt-5">
-        <Row>
+    <div
+      className="d-flex align-items-center justify-content-center"
+      style={{
+        height: "100vh",
+        backgroundImage: `url(${require("../pexels-john-diez-7578199.jpg")})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        color: "#fff",
+        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", // Add text shadow for better readability
+      }}
+    >
+      <Container>
+        <Row className="text-center">
           <Col>
-            <h1>Welcome to My Blog</h1>
-            <p>
+            <h1 className="display-4 text-white">Welcome to My Blog</h1>
+            <p className="lead mt-3 text-white">
               Discover amazing content and join our community of writers and
               readers.
             </p>
-            <Button variant="primary" as={Link} to="/register">
+            <Button
+              variant="primary"
+              as={Link}
+              to="/register"
+              size="lg"
+              className="mt-3 text-light"
+            >
               Get Started
             </Button>
           </Col>
-        </Row>
-
-        <Row className="mt-5">
-          <Col>
-            <h2>Latest Posts</h2>
-          </Col>
-        </Row>
-
-        <Row className="mt-3">
-          {/* Example of a blog post card */}
-          {blogs.map((blog) => (
-            <BlogCard
-              title={blog.title}
-              username={blogs?.user?.username}
-              //   description={blog.description}
-              id={blog._id}
-              image={blog.image}
-              time={blog.createdAt}
-            />
-          ))}
         </Row>
       </Container>
     </div>

@@ -12,6 +12,10 @@ import AuthRoute from "./pages/AuthRoute";
 import UnAuthRoute from "./pages/UnAuthRoute";
 import Landing from "./components/Landing";
 import ViewBlog from "./pages/ViewBlog";
+import ViewUser from "./pages/ViewUser";
+import AllUsers from "./pages/AllUsers";
+import FollowerList from "./pages/FollowerList";
+import FollowingList from "./pages/FollowingList";
 
 function App() {
   return (
@@ -19,8 +23,23 @@ function App() {
       <Header />
       <Toaster />
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/blogs" element={<Blogs />} />
+        <Route
+          path="/"
+          element={
+            <UnAuthRoute>
+              <Landing />
+            </UnAuthRoute>
+          }
+        />
+
+        <Route
+          path="/blogs"
+          element={
+            <AuthRoute>
+              <Blogs />
+            </AuthRoute>
+          }
+        />
         <Route
           path="/my-blogs"
           element={
@@ -61,7 +80,50 @@ function App() {
             </UnAuthRoute>
           }
         />
-        <Route path="/get-blog/:id" element={<ViewBlog />} />
+        <Route
+          path="/get-blog/:id"
+          element={
+            <AuthRoute>
+              <ViewBlog />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/user/all"
+          element={
+            <AuthRoute>
+              <AllUsers />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/user/:name"
+          element={
+            <AuthRoute>
+              <ViewUser />
+            </AuthRoute>
+          }
+        />
+
+        {/* follower/ following */}
+        <Route path="/:name/followers" element={<FollowerList />} />
+        <Route
+          path="/:name/following"
+          element={
+            <AuthRoute>
+              <FollowingList />
+            </AuthRoute>
+          }
+        />
+
+        <Route
+          path="/user/all"
+          element={
+            <AuthRoute>
+              <AllUsers />
+            </AuthRoute>
+          }
+        />
       </Routes>
     </>
   );

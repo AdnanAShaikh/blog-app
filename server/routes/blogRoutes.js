@@ -6,6 +6,8 @@ const {
   deleteBlogController,
   getBlogByIdController,
   getUserBlogByIdController,
+  commentController,
+  unCommentController,
 } = require("../controllers/blogController");
 const { authenticateToken } = require("../middlewares/jwt");
 
@@ -15,7 +17,7 @@ const router = express.Router();
 router.get("/all-blogs", getAllBlogsController);
 
 //POST create blog
-router.post("/create-blog", authenticateToken, createBlogController);
+router.post("/create-blog", createBlogController);
 
 //PUT update blog
 router.put("/update-blog/:id", updateBlogController);
@@ -27,5 +29,8 @@ router.delete("/delete-blog/:id", deleteBlogController);
 router.get("/get-blog/:id", getBlogByIdController);
 
 router.get("/user-blog/:id", getUserBlogByIdController);
+
+//comment routes
+router.post("/:id/comment", commentController);
 
 module.exports = router;

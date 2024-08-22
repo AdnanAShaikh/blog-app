@@ -4,6 +4,8 @@ import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import toast from "react-hot-toast";
 import axios from "axios";
 import validator from "validator";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ const Register = () => {
     email: "",
     password: "",
   });
+  const [imageURL, setImageURL] = useState("");
 
   //handle input change
   const handleChange = (e) => {
@@ -49,6 +52,7 @@ const Register = () => {
           username: inputs.name,
           email: inputs.email,
           password: inputs.password,
+          image: imageURL,
         }
       );
       const { data } = response;
@@ -66,6 +70,23 @@ const Register = () => {
       console.log(error);
       // if (error.response.status === 401) {
       // alert("Use a different Email !");
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(selectedFile.name);
+
+      fileRef.put(selectedFile).then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((downloadURL) => {
+          console.log(downloadURL);
+          setImageURL(downloadURL);
+        });
+      });
+    } else {
+      console.log("no file selected !");
     }
   };
 
@@ -90,6 +111,16 @@ const Register = () => {
                     required
                   />
                 </Form.Group>
+                <Form.Group controlId="formImage" className="mb-3">
+                  <Form.Label>Image File</Form.Label>
+                  <Form.Control
+                    type="file"
+                    placeholder="Image File"
+                    name="image"
+                    onChange={handleFileChange}
+                    required
+                  />
+                </Form.Group>
                 <Form.Group controlId="formEmail" className="mb-3">
                   <Form.Control
                     type="email"
@@ -110,6 +141,7 @@ const Register = () => {
                     required
                   />
                 </Form.Group>
+
                 <Button variant="primary" type="submit" className="w-100 mb-3">
                   Submit
                 </Button>

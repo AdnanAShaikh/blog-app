@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { authActions } from "../redux/store";
 import toast from "react-hot-toast";
@@ -29,8 +28,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     toast.loading("Checking Credentials");
-    console.log("Email:", inputs.email);
-    console.log("Password:", inputs.password);
+
     if (!validator.isEmail(inputs.email)) {
       toast.dismiss();
       return toast.error("Enter email in a valid form");
@@ -42,13 +40,28 @@ const Login = () => {
     }
 
     try {
-      const { data } = await axios.post(
+      // const { data } = await axios.post(
+      //   "http://localhost:8081/api/v1/user/login",
+      //   {
+      //     email: inputs.email,
+      //     password: inputs.password,
+      //   }
+      // );
+
+      const response = await fetch(
         "https://blog-app-2-5s8y.onrender.com/api/v1/user/login",
         {
-          email: inputs.email,
-          password: inputs.password,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/jSON",
+          },
+          body: JSON.stringify({
+            email: inputs.email,
+            password: inputs.password,
+          }),
         }
       );
+      const data = await response.json();
       if (data?.success) {
         toast.dismiss();
         console.log(data);
@@ -101,7 +114,7 @@ const Login = () => {
                   Submit
                 </Button>
                 <p style={{ textAlign: "center" }}>Or</p>
-                {/* <SignInGoogle /> */}
+                <SignInGoogle />
                 <Button
                   variant="link"
                   onClick={() => navigate("/register")}
