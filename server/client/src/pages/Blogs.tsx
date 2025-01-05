@@ -5,9 +5,31 @@ import BlogCard from "../components/BlogCard";
 import Login from "./Login";
 import { Routes, Route } from "react-router-dom";
 
-const Blogs = () => {
-  const [blogs, setBlogs] = useState([]);
-  const isLoggedIn = localStorage.getItem("userId");
+interface Blog {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  user: {
+    username: string;
+    image: string;
+  };
+  createdAt: string;
+}
+
+interface BlogCardProps {
+  title: string;
+  description: string;
+  image: string;
+  username: string;
+  time: string;
+  id: string | number;
+  userImage: string;
+}
+
+const Blogs: React.FC = () => {
+  const [blogs, setBlogs] = useState<Blog[]>([]); // State typed as an array of Blog objects
+  const isLoggedIn = Boolean(localStorage.getItem("userId"));
 
   const getAllBlogs = async () => {
     try {
@@ -16,10 +38,10 @@ const Blogs = () => {
       );
       if (data?.success) {
         console.log(data);
-        setBlogs(data?.blogs);
+        setBlogs(data?.blogs); // Ensure the response matches Blog[]
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching blogs:", error);
     }
   };
 
@@ -33,14 +55,15 @@ const Blogs = () => {
         <Row>
           {blogs.length > 0 ? (
             blogs.map((blog) => (
-              <Col xs={12} key={blog?._id} className="mb-3">
+              <Col xs={12} key={blog._id} className="mb-3">
                 <BlogCard
-                  id={blog?._id}
-                  userImage={blog?.user.image}
-                  title={blog?.title}
-                  image={blog?.image}
-                  username={blog?.user?.username}
-                  time={blog?.createdAt}
+                  id={blog._id}
+                  userImage={blog.user.image}
+                  title={blog.title}
+                  description={blog.description}
+                  image={blog.image}
+                  username={blog.user.username}
+                  time={blog.createdAt}
                 />
               </Col>
             ))

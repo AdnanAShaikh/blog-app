@@ -16,7 +16,7 @@ const CreateBlog = () => {
   const [imageURL, setImageURL] = useState("");
 
   // input change
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setInputs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
@@ -24,7 +24,7 @@ const CreateBlog = () => {
   };
 
   // form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     toast.loading("Uploading");
     try {
@@ -51,7 +51,7 @@ const CreateBlog = () => {
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       const storageRef = firebase.storage().ref();

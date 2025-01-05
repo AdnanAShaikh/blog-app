@@ -3,9 +3,24 @@ import axios from "axios";
 import BlogCard from "../components/BlogCard";
 import { Container, Row, Col, Alert } from "react-bootstrap";
 
+interface BlogCardProps {
+  title: string;
+  description: string;
+  image: string;
+  time: string;
+  _id: string | number;
+  userImage: string;
+  createdAt: any;
+}
+
+interface User {
+  username: string;
+  image: string;
+}
+
 const UserBlogs = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState([]);
+  const [blogs, setBlogs] = useState<BlogCardProps[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   // get user blogs
   const getUserBlogs = async () => {
@@ -37,11 +52,11 @@ const UserBlogs = () => {
                 id={blog._id}
                 isUser={true}
                 title={blog.title}
-                userImage={user.image}
-                // description={blog.description}
+                description=""
                 image={blog.image}
-                username={user.username}
                 time={blog.createdAt}
+                userImage={user?.image || ""}
+                username={user?.username || ""}
               />
             </Col>
           ))

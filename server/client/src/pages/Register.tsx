@@ -18,7 +18,7 @@ const Register = () => {
   const [imageURL, setImageURL] = useState("");
 
   //handle input change
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setInputs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
@@ -26,7 +26,7 @@ const Register = () => {
   };
 
   //form handle
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(inputs.password);
     console.log(inputs.name);
@@ -68,12 +68,10 @@ const Register = () => {
       toast.error("Internal Server Error");
       console.log(error);
       console.log(error);
-      // if (error.response.status === 401) {
-      // alert("Use a different Email !");
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       const storageRef = firebase.storage().ref();

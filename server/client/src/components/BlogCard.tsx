@@ -2,6 +2,17 @@ import React from "react";
 import { Card, Image, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
+interface BlogCardProps {
+  title: string;
+  description: string;
+  image: string;
+  username: string;
+  time: string;
+  id: string | number;
+  userImage: string;
+  isUser?: boolean;
+}
+
 export default function BlogCard({
   title,
   description,
@@ -10,7 +21,7 @@ export default function BlogCard({
   time,
   id,
   userImage,
-}) {
+}: BlogCardProps) {
   return (
     <Card
       className="mb-3 shadow-sm"

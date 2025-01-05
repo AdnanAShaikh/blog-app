@@ -5,14 +5,14 @@ import { Link } from "react-router-dom";
 const Landing = () => {
   return (
     <div
-      className="d-flex align-items-center justify-content-center"
+      className="flex items-center justify-center"
       style={{
         height: "100vh",
         backgroundImage: `url(${require("../pexels-john-diez-7578199.jpg")})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         color: "#fff",
-        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", // Add text shadow for better readability
+        textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
       }}
     >
       <Container>
@@ -23,7 +23,7 @@ const Landing = () => {
               Discover amazing content and join our community of writers and
               readers.
             </p>
-            <Button
+            {/* <Button
               variant="primary"
               as={Link}
               to="/register"
@@ -31,7 +31,7 @@ const Landing = () => {
               className="mt-3 text-light"
             >
               Get Started
-            </Button>
+            </Button> */}
           </Col>
         </Row>
       </Container>

@@ -1,14 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Form, Button, Card } from "react-bootstrap";
 
-const BlogDetails = () => {
-  const [blog, setBlog] = useState({});
-  const { id } = useParams();
+interface Blog {
+  title: string;
+  description: string;
+  image: string;
+  id: string | number;
+}
+
+interface BlogInputs {
+  title: string;
+  description: string;
+  image: string;
+}
+
+const BlogDetails: React.FC = () => {
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState<BlogInputs>({
+    title: "",
+    description: "",
+    image: "",
+  });
 
   // Get blog details
   const getBlogDetail = async () => {
@@ -17,15 +34,15 @@ const BlogDetails = () => {
         `https://blog-app-2-5s8y.onrender.com/api/v1/blog/get-blog/${id}`
       );
       if (data?.success) {
-        setBlog(data?.blog);
+        setBlog(data.blog);
         setInputs({
-          title: data?.blog.title,
-          description: data?.blog.description,
-          image: data?.blog.image,
+          title: data.blog.title,
+          description: data.blog.description,
+          image: data.blog.image,
         });
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching blog details:", error);
     }
   };
 
@@ -34,7 +51,9 @@ const BlogDetails = () => {
   }, [id]);
 
   // Input change
-  const handleChange = (e) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setInputs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
@@ -42,7 +61,7 @@ const BlogDetails = () => {
   };
 
   // Form submit
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const { data } = await axios.put(
@@ -59,7 +78,7 @@ const BlogDetails = () => {
         navigate("/my-blogs");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error updating blog:", error);
     }
   };
 
