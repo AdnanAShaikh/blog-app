@@ -9,7 +9,21 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        smd: "420px", //small-medium
+      },
+      fontFamily: {
+        sans: ["serif", "Helvetica", "Arial", "sans-serif"], // Replace with your desired font family
+      },
+
+      colors: {
+        primary: "#eff7f6",
+      },
+      fontSize: {
+        "10xl": "120px",
+      },
+    },
   },
   plugins: [],
 };

@@ -1,4 +1,4 @@
-import Header from "./components/Header";
+import Header1 from "./components/Header1";
 import { Routes, Route } from "react-router-dom";
 import "./index.css";
 import Blogs from "./pages/Blogs";
@@ -20,17 +20,9 @@ import FollowingList from "./pages/FollowingList";
 function App() {
   return (
     <>
-      <Header />
       <Toaster />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <UnAuthRoute>
-              <Landing />
-            </UnAuthRoute>
-          }
-        />
+        <Route path="/" element={<Landing />} />
 
         <Route
           path="/blogs"
@@ -64,22 +56,8 @@ function App() {
             </AuthRoute>
           }
         />
-        <Route
-          path="/login"
-          element={
-            <UnAuthRoute>
-              <Login />
-            </UnAuthRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <UnAuthRoute>
-              <Register />
-            </UnAuthRoute>
-          }
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/get-blog/:id"
           element={
