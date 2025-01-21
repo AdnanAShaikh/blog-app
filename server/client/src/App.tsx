@@ -1,6 +1,4 @@
-import Header1 from "./components/Header1";
 import { Routes, Route } from "react-router-dom";
-import "./index.css";
 import Blogs from "./pages/Blogs";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -9,7 +7,6 @@ import CreateBlog from "./pages/CreateBlog";
 import { Toaster } from "react-hot-toast";
 import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
-import UnAuthRoute from "./pages/UnAuthRoute";
 import Landing from "./components/Landing";
 import ViewBlog from "./pages/ViewBlog";
 import ViewUser from "./pages/ViewUser";

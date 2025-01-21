@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Container, Row, Col } from "react-bootstrap";
-import BlogCard from "../components/BlogCard";
-import Login from "./Login";
-import { Routes, Route } from "react-router-dom";
+import Header1 from "../components/Header1";
+import BlogMain from "src/components/BlogMain";
+import BlogSidebar from "src/components/BlogSidebar";
 
-interface Blog {
+type Blog = {
   _id: string;
   title: string;
   description: string;
@@ -15,9 +14,9 @@ interface Blog {
     image: string;
   };
   createdAt: string;
-}
+};
 
-interface BlogCardProps {
+type BlogCardProps = {
   title: string;
   description: string;
   image: string;
@@ -25,11 +24,12 @@ interface BlogCardProps {
   time: string;
   id: string | number;
   userImage: string;
-}
+};
 
 const Blogs: React.FC = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]); // State typed as an array of Blog objects
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const isLoggedIn = Boolean(localStorage.getItem("userId"));
+  const [isLoading, setIsLoading] = useState(true);
 
   const getAllBlogs = async () => {
     try {
@@ -37,10 +37,12 @@ const Blogs: React.FC = () => {
         "https://blog-app-2-5s8y.onrender.com/api/v1/blog/all-blogs"
       );
       if (data?.success) {
+        setIsLoading(false);
         console.log(data);
-        setBlogs(data?.blogs); // Ensure the response matches Blog[]
+        setBlogs(data?.blogs);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error fetching blogs:", error);
     }
   };
@@ -50,33 +52,13 @@ const Blogs: React.FC = () => {
   }, []);
 
   return (
-    <Container className="bg-body-tertiary mt-4">
-      {isLoggedIn ? (
-        <Row>
-          {blogs.length > 0 ? (
-            blogs.map((blog) => (
-              <Col xs={12} key={blog._id} className="mb-3">
-                <BlogCard
-                  id={blog._id}
-                  userImage={blog.user.image}
-                  title={blog.title}
-                  description={blog.description}
-                  image={blog.image}
-                  username={blog.user.username}
-                  time={blog.createdAt}
-                />
-              </Col>
-            ))
-          ) : (
-            <p>No blogs</p>
-          )}
-        </Row>
-      ) : (
-        <Routes>
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      )}
-    </Container>
+    <>
+      <Header1 />
+      <div className="flex justify-center">
+        <BlogMain blogs={blogs} isLoading={isLoading} />
+        {!isLoading && <BlogSidebar />}
+      </div>
+    </>
   );
 };
 

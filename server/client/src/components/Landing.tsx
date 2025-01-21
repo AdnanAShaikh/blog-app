@@ -11,47 +11,10 @@ const Landing = () => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
-  let isLogin = useSelector((state: any) => state.isLogin);
-  isLogin = isLogin || localStorage.getItem("userId");
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogout = async () => {
-    try {
-      if (window.confirm("Do you want to Log Out?")) {
-        dispatch(authActions.logout());
-        toast.success("Logout Successfully");
-
-        navigate("/login");
-        localStorage.clear();
-        await axios.get(
-          "https://blog-app-2-5s8y.onrender.com/api/v1/user/logout"
-        );
-      } else {
-        alert("You chose to remained Logged in...");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const userId = localStorage.getItem("userId");
-
-  function handleProfile() {
-    let name = "";
-    const getUserName = async () => {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/id/${userId}`
-      );
-      if (data.success) {
-        console.log("this user", data);
-        name = data.user;
-        navigate(`/user/${name}`);
-      }
-    };
-    getUserName();
-  }
 
   async function googleLogin() {
     try {
@@ -93,8 +56,8 @@ const Landing = () => {
       >
         <div>
           <div className="w-full flex justify-between px-[5%] lg:px-[15%] py-3 pt-6 items-center">
-            <h1 className="text-3xl hover:cursor-pointer max-lg:text-xl">
-              Blog-App
+            <h1 className="text-3xl font-bold hover:cursor-pointer max-lg:text-xl">
+              Medium
             </h1>
             <div className="flex items-center gap-7">
               <p className="hover:cursor-pointer hover:underline max-md:hidden">
@@ -125,7 +88,7 @@ const Landing = () => {
         <div className="w-full h-px mt-2 bg-black"></div>
         {/* Main Content */}
         <main className="flex-grow flex justify-center items-center pt-1">
-          <div className="w-full flex flex-col lg:flex-row justify-between items-center lg:items-start pl-[5%] lg:pl-[15%] gap-10">
+          <div className="w-full flex flex-col lg:flex-row justify-between items-center lg:items-start pl-[5%] lg:pl-[15%] gap-10 py-5">
             {/* Text Section */}
             <div className="flex flex-col items-start max-w-3xl lg:text-left pt-10">
               <p
@@ -143,7 +106,7 @@ const Landing = () => {
               </button>
             </div>
             {/* Image Section */}
-            <div className="w-1/4  max-lg:hidden overflow-hidden ">
+            <div className="w-1/2 xl:w-1/4  max-lg:hidden overflow-hidden ">
               <img
                 alt="landing-image"
                 src="https://miro.medium.com/v2/format:webp/4*SdjkdS98aKH76I8eD0_qjw.png"
