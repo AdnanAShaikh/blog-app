@@ -1,10 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Blogs from "./pages/Blogs";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
 import UserBlogs from "./pages/UserBlog";
 import CreateBlog from "./pages/CreateBlog";
-import { Toaster } from "react-hot-toast";
 import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
 import Landing from "./components/Landing";
@@ -15,62 +12,47 @@ import FollowerList from "./pages/FollowerList";
 import FollowingList from "./pages/FollowingList";
 
 function App() {
+  const isLogin = localStorage.getItem("userId");
   return (
     <>
-      <Toaster />
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={isLogin ? <Blogs /> : <Landing />} />
 
         <Route
-          path="/blogs"
-          element={
-            <AuthRoute>
-              <Blogs />
-            </AuthRoute>
-          }
-        />
-        <Route
-          path="/my-blogs"
-          element={
-            <AuthRoute>
-              <UserBlogs />
-            </AuthRoute>
-          }
-        />
-        <Route
-          path="/create-blog"
+          path="/create"
           element={
             <AuthRoute>
               <CreateBlog />
             </AuthRoute>
           }
         />
-        <Route
-          path="/blog-details/:id"
+
+        {/* this is update blog */}
+        {/* <Route
+          path="/:id"
           element={
             <AuthRoute>
               <BlogDetails />
             </AuthRoute>
           }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        /> */}
+
+        {/* this is view blog */}
         <Route
-          path="/get-blog/:id"
+          path="/blog/:id"
           element={
             <AuthRoute>
               <ViewBlog />
             </AuthRoute>
           }
         />
-        <Route
-          path="/user/all"
-          element={
-            <AuthRoute>
-              <AllUsers />
-            </AuthRoute>
-          }
-        />
+
+        {/*  */}
+        {/* 
+
+          USER ROUTES BELOW
+        
+        */}
         <Route
           path="/user/:name"
           element={

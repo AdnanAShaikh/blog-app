@@ -3,19 +3,31 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import { Provider } from "react-redux";
+import { Provider as ReduxProvider } from "react-redux";
 import { store } from "./redux/store";
-import firebase from "firebase/compat/app";
+import firebase from "@firebase/app-compat";
+import { Toaster } from "react-hot-toast";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import DoneIcon from "@mui/icons-material/Done";
+
+const customTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#000000",
+    },
+  },
+});
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB6M9LDvHoMKmEISv9ldzRDQO0VgRlxE98",
-  authDomain: "blog-app-image-b8fdb.firebaseapp.com",
-  projectId: "blog-app-image-b8fdb",
-  storageBucket: "blog-app-image-b8fdb.appspot.com",
-  messagingSenderId: "1009451851824",
-  appId: "1:1009451851824:web:5e4a1c341a73fdcca64df5",
-  measurementId: "G-B3DNMBB7YY",
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_API_ID,
+  measurementId: process.env.REACT_APP_MEASUREMENT_ID, // Fix this line
 };
 
 // Initialize Firebase
@@ -31,13 +43,38 @@ if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
 
   root.render(
-    <Provider store={store}>
-      <BrowserRouter>
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      </BrowserRouter>
-    </Provider>
+    <ReduxProvider store={store}>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          success: {
+            icon: <DoneIcon className="text-green-600" />,
+            style: {
+              color: "#007200",
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
+              border: "2px solid #007200",
+            },
+          },
+          error: {
+            icon: <ErrorOutlineIcon className="text-red-500" />,
+            style: {
+              color: "#c1121f",
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
+              border: "2px solid #c1121f",
+            },
+          },
+        }}
+      />
+      <ThemeProvider theme={customTheme}>
+        <BrowserRouter>
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        </BrowserRouter>
+      </ThemeProvider>
+    </ReduxProvider>
   );
 
   // Report web vitals (optional)

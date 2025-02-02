@@ -45,6 +45,12 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.pre("findOneAndDelete", async function (next) {
+  const userId = this.getQuery()._id;
+  await Blog.deleteMany({ author: userId }); // Assuming `author` in Blog model stores userId
+  next();
+});
+
 const userModel = mongoose.model("User", userSchema);
 
 module.exports = userModel;

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { SyncLoader } from "react-spinners";
-import BlogCard from "../components/BlogCard";
+import BlogCard from "../BlogCard";
 
 type BlogMainProps = {
-  blogs: any[]; // Replace `any` with the specific type of your blogs if you know it
+  blogs: any[];
   isLoading: boolean;
 };
 
@@ -31,6 +31,7 @@ const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
         {isLoggedIn && (
           <>
             <div className="">
+              {/* <Button>Click me please</Button> */}
               {blogs.length > 0 ? (
                 blogs.map((blog: BlogCardProps) => (
                   <div key={blog._id} className="mb-3">
@@ -40,8 +41,8 @@ const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
                       description={blog.description}
                       image={blog.image}
                       time={blog.createdAt}
-                      username={blog.user.username}
-                      userImage={blog.user.image}
+                      username={blog?.user?.username}
+                      userImage={blog?.user?.image}
                     />
                   </div>
                 ))

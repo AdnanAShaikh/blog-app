@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Header1 from "../components/Header1";
-import BlogMain from "src/components/BlogMain";
-import BlogSidebar from "src/components/BlogSidebar";
+import BlogMain from "src/components/all-Blogs-Page-Components/BlogMain";
+import BlogSidebar from "src/components/all-Blogs-Page-Components/BlogSidebar";
+import { baseAPIUrl } from "../utils/baseAPIUrl";
 
-type Blog = {
+interface Blog {
   _id: string;
   title: string;
   description: string;
@@ -14,31 +15,17 @@ type Blog = {
     image: string;
   };
   createdAt: string;
-};
-
-type BlogCardProps = {
-  title: string;
-  description: string;
-  image: string;
-  username: string;
-  time: string;
-  id: string | number;
-  userImage: string;
-};
+}
 
 const Blogs: React.FC = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const isLoggedIn = Boolean(localStorage.getItem("userId"));
   const [isLoading, setIsLoading] = useState(true);
 
   const getAllBlogs = async () => {
     try {
-      const { data } = await axios.get(
-        "https://blog-app-2-5s8y.onrender.com/api/v1/blog/all-blogs"
-      );
+      const { data } = await axios.get(`${baseAPIUrl}/blog/all`);
       if (data?.success) {
         setIsLoading(false);
-        console.log(data);
         setBlogs(data?.blogs);
       }
     } catch (error) {

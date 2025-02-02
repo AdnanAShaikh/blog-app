@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Container, Form, Button, Card } from "react-bootstrap";
+import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 interface Blog {
   title: string;
@@ -30,9 +31,7 @@ const BlogDetails: React.FC = () => {
   // Get blog details
   const getBlogDetail = async () => {
     try {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/blog/get-blog/${id}`
-      );
+      const { data } = await axios.get(`${baseAPIUrl}/blog/${id}`);
       if (data?.success) {
         setBlog(data.blog);
         setInputs({
