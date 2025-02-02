@@ -1,8 +1,7 @@
 const { generateToken, authenticateToken } = require("../middlewares/jwt");
 const userModel = require("../models/userModel");
-const blogModel = require("../models/blogModel");
 const bcrypt = require("bcrypt");
-const validator = require("validator");
+const mongoose = require("mongoose");
 
 //get all users
 exports.getAllUsers = async (req, res) => {
@@ -148,19 +147,26 @@ exports.getUserByName = async (req, res) => {
   }
 };
 
-exports.getUserByIdForName = async (req, res) => {
+exports.getUserById = async (req, res) => {
   const { id } = req.params;
 
-  const user = await userModel.findById(id);
+  try {
+    const user = await userModel.findById(id);
 
-  if (!user) {
-    return res
-      .status(404)
-      .json({ success: false, message: "No such user! ! " });
+    if (!user) {
+      console.log("User not found in database!");
+      return res
+        .status(404)
+        .json({ success: false, message: "No user exists! !!" });
+    }
+
+    return res.status(200).json({ success: true, user: user.image });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
-
-  return res.status(200).json({ success: true, user: user.username });
 };
+
 exports.followUser = async (req, res) => {
   try {
     const name = req.params.name; // The name of the user to follow

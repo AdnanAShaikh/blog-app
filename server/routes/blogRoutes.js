@@ -14,21 +14,21 @@ const { authenticateToken } = require("../middlewares/jwt");
 const router = express.Router();
 
 //GET all blog
-router.get("/all-blogs", getAllBlogsController);
+router.get("/all", getAllBlogsController);
 
 //POST create blog
-router.post("/create-blog", createBlogController);
+router.post("/create", createBlogController);
 
 //PUT update blog
-router.put("/update-blog/:id", updateBlogController);
+router.put("/update/:id", updateBlogController);
 
 //DELETE blog
-router.delete("/delete-blog/:id", deleteBlogController);
+router.delete("/delete/:id", deleteBlogController);
 
 //GET one blog
-router.get("/get-blog/:id", getBlogByIdController);
+// router.get("/:id", getBlogByIdController);
 
-router.get("/user-blog/:id", getUserBlogByIdController);
+router.get("/user/blogs/:id", getUserBlogByIdController);
 
 //comment routes
 router.post("/:id/comment", commentController);

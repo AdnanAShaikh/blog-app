@@ -12,13 +12,8 @@ const blogSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "Image is required"],
     },
-    user: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-      require: [true, "User id is required"],
-    },
+
     comments: [
       {
         text: String,
@@ -32,8 +27,12 @@ const blogSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-
     dislikes: [],
+    user: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      require: [true, "User id is required"],
+    },
   },
   { timestamps: true }
 );

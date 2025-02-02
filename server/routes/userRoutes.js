@@ -4,7 +4,7 @@ const {
   registerController,
   loginController,
   followUser,
-  getUserByIdForName,
+  getUserById,
   getCurrentUser,
   unFollowUser,
   getUserByName,
@@ -24,11 +24,11 @@ router.post("/register", registerController);
 // Login
 router.post("/login", loginController);
 
-//view user
-router.get("/:name", getUserByName);
+//get user by name
+router.get("/name/:name", getUserByName);
 
 //get user by id
-router.get("/id/:id", getUserByIdForName);
+router.get("/:id", getUserById);
 
 //follow by name
 router.post("/follow/:name", followUser);

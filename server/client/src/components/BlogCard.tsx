@@ -1,6 +1,8 @@
+import { Tooltip } from "@mui/material";
 import React from "react";
-import { Card, Image, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 
 type BlogCardProps = {
   title: string;
@@ -22,6 +24,7 @@ export default function BlogCard({
   id,
   userImage,
 }: BlogCardProps) {
+  const navigate = useNavigate();
   const formatCreatedAt = (createdAt: string | Date): string => {
     const date = new Date(createdAt);
     return date.toLocaleDateString("en-US", {
@@ -30,11 +33,23 @@ export default function BlogCard({
       day: "numeric",
     });
   };
+
   return (
-    <div className="w-fit p-3 py-7 border-b-2">
+    <div
+      className="w-fit p-3 py-7 border-b-2 hover:cursor-pointer"
+      onClick={() => {
+        navigate(`/blog/${id}`);
+      }}
+    >
       {/* top level */}
       <div className="flex items-center gap-3 mb-3 ">
-        <div className="w-5 h-5 rounded-full overflow-hidden">
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/user/${username}`);
+          }}
+          className="w-6 h-6 rounded-full overflow-hidden hover:opacity-65"
+        >
           <img
             className="h-full w-full object-cover "
             src={userImage}
@@ -42,29 +57,48 @@ export default function BlogCard({
           />
         </div>
 
-        <span>{username}</span>
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/user/${username}`);
+          }}
+          className="hover:underline"
+        >
+          {username}
+        </span>
       </div>
 
       {/* title and image */}
       <div className="flex gap-10  ">
-        <div className="flex flex-col gap-3  " style={{ minWidth: "464px" }}>
-          <h3 className="text-2xl font-bold " style={{ lineHeight: 1 }}>
+        <div className="flex flex-col gap-3  " style={{ width: "464px" }}>
+          <h3
+            className="text-2xl font-bold hover:underline"
+            style={{ lineHeight: 1 }}
+          >
             {title}
           </h3>
-          <p>{description.slice(0, 10)}</p>
-          <div className="flex gap-5 items-center ">
+
+          <div dangerouslySetInnerHTML={{ __html: description.slice(0, 20) }} />
+
+          <div className="flex gap-5 items-center mt-5 ">
             <span>{formatCreatedAt(time)} </span>
-            <span>👏11.2k </span>
-            <span>☁235 </span>
+            <Tooltip title="11.2k likes" arrow>
+              <span className="flex items-center gap-2">
+                <ThumbUpOffAltIcon /> <p>11.2k</p>{" "}
+              </span>
+            </Tooltip>
+            <Tooltip title="235 responses" arrow>
+              <span className="flex items-center gap-2">
+                <ModeCommentOutlinedIcon /> <p>235 </p>
+              </span>
+            </Tooltip>
           </div>
         </div>
 
         {/* image */}
-        <div className="w-32 ml-10">
+        <div className="w-40 h-28 ml-10 overflow-hidden">
           <img
-            className=""
-            height={107}
-            width={170}
+            className=" w-full h-full object-cover"
             src={image}
             alt="blog img"
           />

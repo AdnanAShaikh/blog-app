@@ -3,6 +3,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button, Card, Col, Container, Image, Row } from "react-bootstrap";
 import BlogCard from "../components/BlogCard";
+import Header1 from "src/components/Header1";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import { Box } from "@mui/material";
 
 interface Blog {
   _id: string;
@@ -16,45 +22,28 @@ interface UserData {
   _id: string;
   username: string;
   email: string;
-  image: string;
+  image: any;
   blogs: Blog[];
   followers: string[];
   following: string[];
 }
 
-interface CurrentUser {
-  _id: string;
-  following: string[];
-}
-
 const ViewUser: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [ourData, setOurData] = useState<CurrentUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const { name } = useParams<{ name: string }>();
   const userId = localStorage.getItem("userId");
+  const [value, setValue] = React.useState("1");
 
-  const isUser = userId === userData?._id;
-
-  const getUserDetails = async () => {
-    try {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/${name}`
-      );
-      if (data.success) {
-        setUserData(data.user);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
-
+  // Used to get Image
   const getCurrentUser = async () => {
     try {
       const { data } = await axios.get(
         `https://blog-app-2-5s8y.onrender.com/api/v1/user/current/${userId}`
       );
       if (data.success) {
-        setOurData(data.currentUser);
+        console.log("current User: ", data);
+        setCurrentUser(data.currentUser);
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -62,12 +51,12 @@ const ViewUser: React.FC = () => {
   };
 
   useEffect(() => {
-    getUserDetails();
-  }, [name]);
-
-  useEffect(() => {
     getCurrentUser();
   }, []);
+
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
 
   const handleFollow = async () => {
     try {
@@ -76,7 +65,7 @@ const ViewUser: React.FC = () => {
         { id: userId }
       );
       if (data.success) {
-        setOurData(data.myUser);
+        setCurrentUser(data.myUser);
         window.location.reload();
       }
     } catch (error) {
@@ -91,7 +80,7 @@ const ViewUser: React.FC = () => {
         { id: userId }
       );
       if (data.success) {
-        setOurData(data.myUser);
+        setCurrentUser(data.myUser);
         window.location.reload();
       }
     } catch (error) {
@@ -99,80 +88,71 @@ const ViewUser: React.FC = () => {
     }
   };
 
-  const weFollowHim = ourData?.following?.includes(userData?._id || "");
+  // const weFollowHim = currentUser?.following?.includes(userData?._id || "");
 
   return (
-    <Container className="mt-5">
-      {/* User Profile Section */}
-      <Card className="p-4 shadow-sm mb-4">
-        <Row className="align-items-center">
-          <Col md={3} className="text-center">
-            <Image
-              src={userData?.image || require("../download.jpeg")}
-              roundedCircle
-              className="mb-3"
-              style={{ width: "150px", height: "150px", objectFit: "cover" }}
-            />
-          </Col>
-          <Col md={6}>
-            <h3>{userData?.username}</h3>
-            <p>{userData?.email}</p>
-            {!isUser ? (
-              !weFollowHim ? (
-                <Button onClick={handleFollow}>Follow</Button>
-              ) : (
-                <Button className="btn-sm" onClick={handleUnFollow}>
-                  UnFollow
-                </Button>
-              )
-            ) : null}
-          </Col>
-          <Col md={3} className="text-center">
-            <p>
-              <strong>{userData?.blogs?.length || 0}</strong> Posts
-            </p>
-            <Link
-              to={`/${userData?.username}/followers`}
-              style={{ textDecoration: "none", color: "black" }}
-            >
-              <p>
-                <strong>{userData?.followers?.length || 0}</strong> Followers↗
-              </p>
-            </Link>
-            <Link
-              to={`/${userData?.username}/following`}
-              style={{ textDecoration: "none", color: "black" }}
-            >
-              <p>
-                <strong>{userData?.following?.length || 0}</strong> Following↗
-              </p>
-            </Link>
-          </Col>
-        </Row>
-      </Card>
+    <>
+      <Header1 />
+      <div className="min-h-screen flex justify-center">
+        <div className="flex w-[63%] ">
+          <div className="w-3/4 border-r-2 pr-32 ">
+            <div className="flex justify-between items-center pt-14">
+              <p className="text-6xl ">{currentUser?.username}</p>
+              <p className="text-3xl">...</p>
+            </div>
+            <div className="mt-10">
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <TabList
+                    onChange={handleChangeTab}
+                    aria-label="lab API tabs example"
+                  >
+                    <Tab label="Home" value="1" />
+                    <Tab label="About" value="2" />
+                  </TabList>
+                </Box>
+                <TabPanel value="1">Home</TabPanel>
+                <TabPanel value="2">
+                  <div className="bg-gray-100 mx-auto py-20 px-10 ">
+                    <div className=" text-center flex-col gap-5">
+                      <p className=" mb-5 text-lg">
+                        Tell the world about yourself
+                      </p>
+                      <p>
+                        Here’s where you can share more about yourself: your
+                        history, work experience, accomplishments, interests,
+                        dreams, and more. You can even add images and use rich
+                        text to personalize your bio.
+                      </p>
+                      <button className="mt-7 border border-black rounded-full p-3 px-8 ">
+                        Get Started
+                      </button>
+                    </div>
+                  </div>
+                  <div className="bg-gray-100 mt-10 h-px"></div>
+                  <p className="text-green-700 mt-10">1 Following</p>
+                </TabPanel>
+              </TabContext>
+            </div>
+          </div>
 
-      {/* Blog Grid Section */}
-      <h4 className="mb-4">Blogs</h4>
-      <Row>
-        {userData?.blogs && userData.blogs.length > 0 ? (
-          userData.blogs.map((blog) => (
-            <Col key={blog._id} xs={12} sm={6} md={4} lg={3} className="mb-4">
-              <BlogCard
-                title={blog.title}
-                description=""
-                image={blog.image}
-                username={userData.username}
-                time={blog.createdAt}
-                id={blog._id}
-                userImage={userData.image}
-              />
-            </Col>
-          ))
-        ) : (
-          <p>No Blogs Yet.</p>
-        )}
-      </Row>
-    </Container>
+          {/* 2nd screen */}
+          <div className="pt-14">
+            <div className="pl-10 flex flex-col gap-3 ">
+              <div className="w-20 h-20 rounded-full overflow-hidden">
+                <img
+                  className="object-cover"
+                  src={currentUser?.image}
+                  alt="user"
+                />
+              </div>
+              <p className="font-medium">{currentUser?.username}</p>
+              <p className="mt-5 text-green-700"> Edit Profile</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

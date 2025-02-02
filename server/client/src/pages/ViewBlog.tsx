@@ -2,17 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
-
-import {
-  Container,
-  Card,
-  Button,
-  Form,
-  Col,
-  Image,
-  Row,
-} from "react-bootstrap";
-
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
+import { baseAPIUrl } from "src/utils/baseAPIUrl";
+import Header1 from "src/components/Header1";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 interface Comment {
   postedBy: string;
   text: string;
@@ -21,11 +15,15 @@ interface Comment {
 interface Blog {
   _id: string;
   title: string;
-  description: string;
+  description: any;
   image: string;
-  updatedAt: any;
+  updatedAt: string;
+  createdAt: string;
   user: {
     username: string;
+    image: string;
+    followers: string[];
+    following: string[];
   };
   comments: Comment[];
 }
@@ -43,9 +41,7 @@ const ViewBlog = () => {
   // Get blog details
   const getBlogDetail = async () => {
     try {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/blog/get-blog/${id}`
-      );
+      const { data } = await axios.get(`${baseAPIUrl}/blog/${id}`);
       if (data?.success) {
         console.log(data);
         setBlog(data.blog);
@@ -101,121 +97,124 @@ const ViewBlog = () => {
     }
   };
 
-  return (
-    <Container className="mt-5">
-      <Card
-        className="p-4 shadow-sm mb-4"
-        key={blog?._id}
-        style={{ borderRadius: "10px" }}
-      >
-        <Card.Body>
-          <Row>
-            <Col xs={12} className="mb-3">
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h2 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-                  {blog?.title}
-                </h2>
-                <span>
-                  {" "}
-                  {isUser && (
-                    <Col xs="auto" className="ml-auto">
-                      <Button
-                        variant="light"
-                        className=" btn-sm"
-                        onClick={handleEdit}
-                      >
-                        🖊
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        className=" btn-sm"
-                        onClick={handleDelete}
-                      >
-                        ❌
-                      </Button>
-                    </Col>
-                  )}
-                </span>
-              </div>
+  const formatDate = (dateString: any) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
-              <p className="text-muted" style={{ fontSize: "1rem" }}>
-                {blog?.user?.username} •{" "}
-                {new Date(blog?.updatedAt).toLocaleDateString()}
-              </p>
-            </Col>
-            <Col xs={12} className="mb-3">
-              <Image
-                src={blog?.image}
-                alt={blog?.title}
-                fluid
-                rounded
-                style={{
-                  width: "10v0%",
-                  height: "auto",
-                  maxHeight: "400px",
-                  objectFit: "contain", // Adjusted for full image visibility
-                  marginBottom: "1rem",
-                }}
-              />
-            </Col>
-            <Col xs={12}>
-              <p
-                style={{
-                  fontSize: "1.1rem",
-                  lineHeight: "1.7",
-                  whiteSpace: "pre-line",
-                }}
-              >
-                {blog?.description}
-              </p>
-            </Col>
-          </Row>
-        </Card.Body>
-        <Card.Footer className="bg-white border-top-0">
-          <Form onSubmit={addComment} className="d-flex">
-            <Form.Control
-              type="text"
-              name="comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Add a comment"
-              className="me-2"
-              style={{ borderRadius: "20px" }}
+  const blogDate = formatDate(blog?.createdAt);
+
+  return (
+    <>
+      <Header1 />
+      <div className="w-full">
+        <div className="w-1/2  mx-auto text-3xl font-bold mt-10">
+          {blog?.title}
+        </div>
+        <div className="w-1/2 mx-auto flex gap-3 mt-7">
+          <div className="w-11 h-11 rounded-full overflow-hidden">
+            <img
+              className="w-full h-full object-cover"
+              src={blog?.user.image}
+              alt="user"
             />
-            <Button
-              type="submit"
-              variant="primary"
-              style={{ borderRadius: "20px" }}
-            >
-              Add
-            </Button>
-          </Form>
-          <div className="mt-4">
-            {blog?.comments && blog.comments.length > 0 ? (
-              blog.comments.map((comment, index) => (
-                <p
-                  key={index}
-                  style={{ fontSize: "0.9rem", lineHeight: "1.4" }}
-                >
-                  <Link
-                    to={`/user/${comment.postedBy}`}
-                    className="text-decoration-none"
-                    style={{
-                      color: "#333",
-                    }}
-                  >
-                    <strong>{comment.postedBy}:</strong>{" "}
-                  </Link>{" "}
-                  {comment.text}
-                </p>
-              ))
-            ) : (
-              <p className="text-muted">No comments yet.</p>
-            )}
           </div>
-        </Card.Footer>
-      </Card>
-    </Container>
+          <div className="flex flex-col">
+            <p>{blog?.user?.username}</p>
+            <p>{blogDate}</p>
+          </div>
+        </div>
+
+        {/* applause section */}
+        <div className="w-1/2 mx-auto mt-7">
+          <div className="bg-gray-100 h-px"></div>
+          <div className="flex justify-between px-4 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <ThumbUpOffAltIcon /> 12.9k
+              </div>
+              <div className="flex items-center gap-1">
+                <ModeCommentOutlinedIcon /> 27
+              </div>
+            </div>
+            <div className="">
+              <MoreHorizIcon fontSize="medium" />
+            </div>
+          </div>
+          <div className="bg-gray-100 h-px"></div>
+        </div>
+        <div className="w-1/2 mx-auto mt-10">
+          <div dangerouslySetInnerHTML={{ __html: blog?.description }} />
+        </div>
+
+        {/* tag section TO BE SOON */}
+        <div></div>
+
+        {/* applause section again */}
+        <div className="w-1/2 mx-auto mt-20">
+          <div className="flex justify-between px-4 py-5">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <ThumbUpOffAltIcon /> 12.9k
+              </div>
+              <div className="flex items-center gap-1">
+                <ModeCommentOutlinedIcon /> 27
+              </div>
+            </div>
+            <div className="">
+              <MoreHorizIcon fontSize="medium" />
+            </div>
+          </div>
+        </div>
+
+        {/* Written By Section */}
+        <div className="w-1/2 mx-auto flex justify-between items-center gap-3 my-10">
+          <div className="flex gap-3">
+            <div className="w-11 h-11 rounded-full overflow-hidden">
+              <img
+                className="w-full h-full object-cover"
+                src={blog?.user.image}
+                alt="user"
+              />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-xl text-bold">
+                Written by {blog?.user?.username}
+              </p>
+              <div className="flex gap-3 items-center">
+                <p>{blog?.user.followers.length} Followers</p>
+                <p>{blog?.user.following.length} Following</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button className="px-5 py-2 bg-black text-white rounded-3xl">
+              Follow
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-gray-100 h-px"></div>
+
+        {/* Responses Section */}
+        <div className="w-1/2 mx-auto mt-10">
+          <p className="text-3xl font-bold">Responses</p>
+          <input
+            type="text"
+            placeholder="What are your thoughts?"
+            className=" pt-3 pb-10 w-full my-10 focus:outline-none"
+          />
+          <div className="bg-gray-100 h-px mb-10"></div>
+
+          {/* Responses Array Section  */}
+        </div>
+      </div>
+    </>
   );
 };
 

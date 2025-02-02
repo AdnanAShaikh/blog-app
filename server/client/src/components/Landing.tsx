@@ -1,20 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authActions } from "../redux/store";
 import axios from "axios";
-import toast from "react-hot-toast";
 import { auth } from "./firebase";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import { SyncLoader } from "react-spinners";
+import GoogleIcon from "@mui/icons-material/Google";
+import { Alert, Snackbar } from "@mui/material";
+import toast from "react-hot-toast";
+import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 const Landing = () => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const userId = localStorage.getItem("userId");
+  useEffect(() => {
+    localStorage.removeItem("userId");
+  }, []);
 
   async function googleLogin() {
     try {
@@ -26,24 +32,23 @@ const Landing = () => {
       console.log(user);
       console.log(user.displayName, user.email, user.photoURL, user.uid);
 
-      const { data } = await axios.post(
-        "https://blog-app-2-5s8y.onrender.com/api/v1/user/google/login",
-        {
-          email: user.email,
-          username: user.displayName,
-          image: user.photoURL,
-          password: user.uid,
-        }
-      );
+      setIsLoading(true);
+
+      const { data } = await axios.post(`${baseAPIUrl}/user/google/login`, {
+        email: user.email,
+        username: user.displayName,
+        image: user.photoURL,
+        password: user.uid,
+      });
       if (data.success) {
+        setIsLoading(false);
         dispatch(authActions.login());
         localStorage.setItem("userId", data.user._id);
-        toast.success("User login Successfully");
-        console.log("Success");
-        console.log(data);
-        navigate("/blogs");
+        window.location.reload();
       }
     } catch (error) {
+      setIsLoading(false);
+
       console.error("Error signing in with Google:", error);
     }
   }
@@ -92,11 +97,11 @@ const Landing = () => {
             {/* Text Section */}
             <div className="flex flex-col items-start max-w-3xl lg:text-left pt-10">
               <p
-                className="mb-5 text-10xl max-lg:text-7xl"
+                className="mb-5 tracking-tighter text-10xl max-lg:text-7xl"
                 style={{ lineHeight: 1 }}
               >
                 Human
-                <br /> Stories & Ideas
+                <br /> <div>Stories & Ideas</div>
               </p>
               <p className="text-lg mb-10">
                 A place to read, write, and deepen your understanding
@@ -116,9 +121,7 @@ const Landing = () => {
           </div>
         </main>
         {/* Footer */}
-
         <div className="w-full h-px bg-black max-md:hidden"></div>
-
         <footer className="max-md:bg-black max-md:text-white py-6 ">
           <div className="flex justify-center px-3">
             <div className="flex gap-3">
@@ -133,6 +136,9 @@ const Landing = () => {
       {/* Sign Up Modal */}
       {isSignUpModalOpen && (
         <div className="fixed inset-0 md:inset-x-[30%] md:inset-y-10 md:shadow-xl z-30 flex flex-col justify-center items-center bg-white   max-md:h-full ">
+          <div className="bg-opacity-60 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <SyncLoader loading={isLoading} />
+          </div>
           <div
             className="absolute top-5 right-5 p-1 text-2xl cursor-pointer"
             onClick={() => {
@@ -150,8 +156,9 @@ const Landing = () => {
                 <div className="md:mt-20 mt-10">
                   <div
                     onClick={googleLogin}
-                    className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer"
+                    className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer flex justify-center gap-4 items-center"
                   >
+                    <GoogleIcon className="-translate-x-2" />{" "}
                     <h1 className="text-xl   ">Sign up with Google</h1>
                   </div>
                   <div className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer">
@@ -162,7 +169,7 @@ const Landing = () => {
               <div className=" font-medium md:text-2xl mt-5">
                 <span>Already have an account? </span>
                 <span
-                  className="text-green-700 font-extrabold cursor-pointer"
+                  className="text-green-700 font-thin cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsSignUpModalOpen(false);
@@ -180,14 +187,18 @@ const Landing = () => {
       {/* sign in Modal */}
       {isSignInModalOpen && (
         <div className="fixed inset-0 md:inset-x-[30%] md:inset-y-10 md:shadow-xl max-md:h-full z-30 flex flex-col justify-center items-center bg-white   ">
-          <div
+          <div className="bg-opacity-60 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <SyncLoader loading={isLoading} />
+          </div>
+          <button
             className="absolute top-5 right-5 p-1 text-2xl cursor-pointer"
+            disabled={isLoading}
             onClick={() => {
               setIsSignInModalOpen(false);
             }}
           >
             ✖
-          </div>
+          </button>
           <div className=" flex flex-col justify-center h-full max-w-[400px] lg:min-w-[326px] max-md:px-[44px] max-md:py-[56px]">
             <div className=" flex flex-col smd:justify-evenly justify-center  h-full  text-center ">
               <div>
@@ -197,8 +208,9 @@ const Landing = () => {
                 <div className="md:mt-20 mt-10">
                   <div
                     onClick={googleLogin}
-                    className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer"
+                    className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer flex justify-center gap-4 items-center"
                   >
+                    <GoogleIcon className="-translate-x-2" />{" "}
                     <h1 className="text-xl ">Sign in with Google</h1>
                   </div>
                   <div className="border border-black px-4 py-2 rounded-3xl my-5 cursor-pointer">
@@ -209,7 +221,7 @@ const Landing = () => {
               <div className=" font-medium md:text-2xl mt-5">
                 <span>No account? </span>
                 <span
-                  className="text-green-700 font-extrabold cursor-pointer"
+                  className="text-green-700 font-thin cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsSignInModalOpen(false);

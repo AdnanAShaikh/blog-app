@@ -24,36 +24,49 @@ exports.getAllBlogsController = async (req, res) => {
 //POST create blog
 exports.createBlogController = async (req, res) => {
   try {
-    const { title, description, image, user } = req.body;
-    if (!title || !description || !image || !user) {
-      return res.status(400).json({ message: "Fill All fields ! ! ! " });
+    const { title, description, user, image } = req.body;
+
+    // Validate required fields (title, description, user)
+    if (!title || !description) {
+      return res.status(400).json({ message: "Fill All fields ! ! !" });
     }
+
+    if (!user) {
+      return res.status(400).json({ message: "Check if you are logged in" });
+    }
+
     const existingUser = await userModel.findById(user);
 
-    //validation user
+    // Validate user existence
     if (!existingUser) {
       return res.status(404).json({ message: "User does not exist! ! !" });
     }
 
-    const newBlog = new blogModel({ title, description, image, user });
+    // Create a new blog entry
+    const newBlog = new blogModel({
+      user,
+      title,
+      description,
+      image,
+    });
 
     const session = await mongoose.startSession();
 
     session.startTransaction();
     await newBlog.save({ session });
 
+    // Add the blog to the user's list of blogs
     existingUser.blogs.push(newBlog);
     await existingUser.save({ session });
+
     await session.commitTransaction();
 
-    await newBlog.save();
     return res.status(200).json({
       success: true,
-      message: "blog successfully created ! ! ! ",
+      message: "Blog successfully created ! ! !",
       blog: newBlog,
       user: user,
     });
-    //validation
   } catch (err) {
     console.log("Error: ", err);
     res.status(500).json({ message: "Internal Server error" });
@@ -106,12 +119,15 @@ exports.deleteBlogController = async (req, res) => {
     res.status(500).json({ message: "Internal Server error" });
   }
 };
+
 //GET blog by id
 exports.getBlogByIdController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const blog = await blogModel.findById(id);
+    const blog = await blogModel
+      .findById(id)
+      .populate("user", "username image followers following"); // Populates only 'username' and 'image' fields from user
 
     if (!blog) {
       return res.status(404).json({ message: "Not FOund blog  !!" });

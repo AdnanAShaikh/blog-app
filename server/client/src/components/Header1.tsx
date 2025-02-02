@@ -1,28 +1,46 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../redux/store";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Face6 from "@mui/icons-material/Person";
+import BookmarksIcon from "@mui/icons-material/Bookmarks";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import LogoutIcon from "@mui/icons-material/Logout";
+import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
+import { baseAPIUrl } from "../utils/baseAPIUrl";
 
 const Header1 = () => {
-  let isLogin = useSelector((state: any) => state.isLogin);
-  isLogin = isLogin || localStorage.getItem("userId");
-
+  const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const createUrl = location.pathname === "/create";
+
+  const [userData, setUserData] = useState({ user: "" });
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleLogout = async () => {
     try {
-      if (window.confirm("Do you want to Log Out?")) {
+      if (window.confirm("Do you want to Log Out? ")) {
+        sessionStorage.removeItem("hasVisitedBefore");
         dispatch(authActions.logout());
-        toast.success("Logout Successfully");
+        localStorage.removeItem("userId");
+        window.location.reload();
 
-        navigate("/login");
-        localStorage.clear();
-        await axios.get(
-          "https://blog-app-2-5s8y.onrender.com/api/v1/user/logout"
-        );
+        toast.success("Logged Out Successfully");
       } else {
         alert("You chose to remained Logged in...");
       }
@@ -30,30 +48,39 @@ const Header1 = () => {
       console.log(error);
     }
   };
-
   const userId = localStorage.getItem("userId");
 
-  function handleProfile() {
-    let name = "";
-    const getUserName = async () => {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/id/${userId}`
-      );
+  // get User Data
+  useEffect(() => {
+    const getUser = async () => {
+      console.log(userId);
+      const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
       if (data.success) {
-        console.log("this user", data);
-        name = data.user;
-        navigate(`/user/${name}`);
+        console.log(data);
+        setUserData(data);
+
+        const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
+        if (!hasVisitedBefore) {
+          toast.success(`Welcome back ${userData.user}`);
+          sessionStorage.setItem("hasVisitedBefore", "true"); // Mark as visited
+        }
       }
     };
-    getUserName();
-  }
+    getUser();
+  }, []);
 
   return (
     <>
       <div className="flex justify-between items-center px-4 py-2">
         {/* 1st section */}
         <div className="flex items-center gap-5">
-          <h3 className="font-bold" style={{ fontSize: "30px" }}>
+          <h3
+            className="font-extrabold hover:cursor-pointer tracking-tighter"
+            onClick={() => {
+              navigate("/");
+            }}
+            style={{ fontFamily: "Times New York", fontSize: "30px" }}
+          >
             Medium
           </h3>
           <div className="flex items-center bg-slate-100 px-3 gap-5 py-2 rounded-full">
@@ -75,15 +102,140 @@ const Header1 = () => {
         </div>
 
         {/* 2nd section */}
-        <div className="p-4">
-          <div className="flex gap-5">
-            <Link to="/create-blog">
-              <p className="hover:cursor-pointer">Write</p>
-            </Link>
-            <p className="hover:cursor-pointer">bell</p>
-            <div onClick={handleProfile}>
-              <p className="hover:cursor-pointer">profile</p>
+        <div className="p-4 ">
+          <div className="flex gap-3 items-center">
+            {!createUrl && (
+              <Link to="/create" className="mr-5">
+                <p className="hover:cursor-pointer flex items-center gap-1">
+                  <div>
+                    <HistoryEduIcon className="text-gray-600 hover:text-black" />
+                  </div>
+                  <div className="flex items-center gap-1  ">
+                    <p className="text-gray-600 hover:text-black">Write</p>
+                  </div>
+                </p>
+              </Link>
+            )}
+
+            <p className="hover:cursor-pointer">
+              <NotificationsNoneOutlinedIcon className="text-gray-600 hover:text-black" />
+            </p>
+            <div>
+              <Button
+                id="basic-button"
+                aria-controls={open ? "basic-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                onClick={handleClick}
+                className="w-8 h-8 rounded-full overflow-hidden"
+              >
+                <div className="w-8 h-8 rounded-full overflow-hidden hover:opacity-80">
+                  <img
+                    src={userData.user}
+                    alt="user"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </Button>
+              <Menu
+                sx={{
+                  ".MuiMenuItem-root": {
+                    ":hover": {
+                      backgroundColor: "transparent",
+                    },
+                  },
+                  "& .MuiMenu-paper": {
+                    width: "20rem",
+                    paddingLeft: "1rem",
+                    paddingRight: "2rem",
+                    paddingTop: "1rem",
+                    paddingBottom: "2rem",
+                  },
+                }}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <div className="border-b-2">
+                  <MenuItem
+                    sx={{
+                      color: "#6b6b6b",
+                      "&:hover": {
+                        backgroundColor: "transparent", // Remove hover background
+                        color: "#000",
+                      },
+                    }}
+                    onClick={() => {
+                      navigate(`/user/${userData.user}`);
+                      handleClose();
+                    }}
+                    className="flex w-full"
+                  >
+                    <div className="flex items-center gap-2" onClick={() => {}}>
+                      <Face6 /> <p>Profile</p>
+                    </div>
+                  </MenuItem>
+                  <MenuItem
+                    sx={{
+                      color: "#6b6b6b",
+                      "&:hover": {
+                        backgroundColor: "transparent", // Remove hover background
+                        color: "#000",
+                      },
+                    }}
+                    onClick={handleClose}
+                  >
+                    <div className="flex items-center gap-2 mt-3">
+                      <BookmarksIcon /> <p>Library</p>
+                    </div>
+                  </MenuItem>
+                  <MenuItem
+                    sx={{
+                      color: "#6b6b6b",
+                      "&:hover": {
+                        backgroundColor: "transparent", // Remove hover background
+                        color: "#000",
+                      },
+                    }}
+                    onClick={handleClose}
+                  >
+                    <div className="flex items-center gap-2 mt-3 pb-4 ">
+                      <AutoStoriesIcon /> <p>Stories</p>
+                    </div>
+                  </MenuItem>
+                </div>
+                <MenuItem
+                  style={{
+                    backgroundColor: "transparent", // Default background
+                  }}
+                  // sx={{
+                  //   color: "#6b6b6b",
+                  //   "&:hover": {
+                  //     backgroundColor: "transparent", // Remove hover background
+                  //     color: "#000",
+                  //   },
+                  // }}
+                  onClick={() => {
+                    handleLogout();
+                    handleClose();
+                  }}
+                >
+                  <div className="mt-5 focus:bg-transparent ">
+                    <div className="flex items-center gap-2 ">
+                      <LogoutIcon /> <p>Logout</p>
+                    </div>
+                  </div>
+                </MenuItem>
+              </Menu>
             </div>
+
+            {/* <div onClick={handleProfile}>
+              <p className="hover:cursor-pointer">profile</p>
+            </div> */}
           </div>
         </div>
       </div>
