@@ -17,7 +17,7 @@ const Login = () => {
   });
 
   // handle input change
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     setInputs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
@@ -25,7 +25,7 @@ const Login = () => {
   };
 
   // form handle
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     toast.loading("Checking Credentials");
 

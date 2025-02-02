@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 import {
   Container,
   Card,
@@ -12,13 +13,31 @@ import {
   Row,
 } from "react-bootstrap";
 
-const ViewBlog = () => {
-  const [blog, setBlog] = useState({});
-  const { id } = useParams();
-  const [comment, setComment] = useState("");
-  let userId = localStorage.getItem("userId");
+interface Comment {
+  postedBy: string;
+  text: string;
+}
 
-  const isUser = localStorage.getItem("userId") === blog?.user;
+interface Blog {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  updatedAt: any;
+  user: {
+    username: string;
+  };
+  comments: Comment[];
+}
+
+const ViewBlog = () => {
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [comment, setComment] = useState<string>("");
+  const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
+
+  const isUser = userId === blog?.user?.username;
   console.log(isUser);
 
   // Get blog details
@@ -40,7 +59,7 @@ const ViewBlog = () => {
     getBlogDetail();
   }, [id]);
 
-  const addComment = async (e) => {
+  const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
     const { data } = await axios.post(
       `https://blog-app-2-5s8y.onrender.com/api/v1/blog/${id}/comment`,
@@ -52,15 +71,21 @@ const ViewBlog = () => {
     if (data.success) {
       toast.success("Comment added");
       console.log(data);
-      setBlog((prevBlog) => ({
-        ...prevBlog,
-        comments: [...prevBlog.comments, data.newComment],
-      }));
+      setBlog((prevBlog) => {
+        if (prevBlog) {
+          return {
+            ...prevBlog,
+            comments: [...prevBlog.comments, data.newComment],
+          };
+        }
+        return prevBlog;
+      });
       setComment(""); // Clear the comment input after submitting
     }
   };
+
   const handleEdit = () => {
-    Navigate(`/blog-details/${id}`);
+    navigate(`/blog-details/${id}`);
   };
 
   const handleDelete = async () => {
@@ -80,7 +105,7 @@ const ViewBlog = () => {
     <Container className="mt-5">
       <Card
         className="p-4 shadow-sm mb-4"
-        key={blog._id}
+        key={blog?._id}
         style={{ borderRadius: "10px" }}
       >
         <Card.Body>
@@ -88,7 +113,7 @@ const ViewBlog = () => {
             <Col xs={12} className="mb-3">
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <h2 style={{ fontSize: "1.75rem", fontWeight: "bold" }}>
-                  {blog.title}
+                  {blog?.title}
                 </h2>
                 <span>
                   {" "}
@@ -114,14 +139,14 @@ const ViewBlog = () => {
               </div>
 
               <p className="text-muted" style={{ fontSize: "1rem" }}>
-                {blog.user?.username} •{" "}
-                {new Date(blog.updatedAt).toLocaleDateString()}
+                {blog?.user?.username} •{" "}
+                {new Date(blog?.updatedAt).toLocaleDateString()}
               </p>
             </Col>
             <Col xs={12} className="mb-3">
               <Image
-                src={blog.image}
-                alt={blog.title}
+                src={blog?.image}
+                alt={blog?.title}
                 fluid
                 rounded
                 style={{
@@ -141,7 +166,7 @@ const ViewBlog = () => {
                   whiteSpace: "pre-line",
                 }}
               >
-                {blog.description}
+                {blog?.description}
               </p>
             </Col>
           </Row>
@@ -166,7 +191,7 @@ const ViewBlog = () => {
             </Button>
           </Form>
           <div className="mt-4">
-            {blog.comments && blog.comments.length > 0 ? (
+            {blog?.comments && blog.comments.length > 0 ? (
               blog.comments.map((comment, index) => (
                 <p
                   key={index}

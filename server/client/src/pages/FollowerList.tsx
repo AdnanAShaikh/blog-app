@@ -2,25 +2,29 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
+type User = {
+  username: string;
+  image: string;
+};
+const FollowerList = () => {
+  const [list, setList] = useState<User[]>([]);
+  const { name } = useParams();
 
-const FollowingList = () => {
-  const [list, setList] = useState([]);
-  const { name } = useParams(); // Extract username from the URL
-
-  const getFollowingList = async () => {
+  const getFollowersList = async () => {
     const { data } = await axios.get(
-      `https://blog-app-2-5s8y.onrender.com/api/v1/user/following/list/${name}`
+      `https://blog-app-2-5s8y.onrender.com/api/v1/user/follower/list/${name}`
     );
     if (data?.success) {
       console.log(data);
-      setList(data.following);
-      console.log("list", list);
+      setList(data.followers);
     }
   };
 
   useEffect(() => {
-    getFollowingList();
+    getFollowersList();
   }, []);
+
+  //   console.log("this:", allUser);
 
   return (
     <>
@@ -83,4 +87,4 @@ const FollowingList = () => {
   );
 };
 
-export default FollowingList;
+export default FollowerList;

@@ -4,15 +4,36 @@ import { Link, useParams } from "react-router-dom";
 import { Button, Card, Col, Container, Image, Row } from "react-bootstrap";
 import BlogCard from "../components/BlogCard";
 
-const ViewUser = () => {
-  const [userData, setUserData] = useState({});
-  const [ourData, setOurData] = useState({});
+interface Blog {
+  _id: string;
+  title: string;
+  image: string;
+  createdAt: string;
+  user: string;
+}
 
-  const { name } = useParams();
+interface UserData {
+  _id: string;
+  username: string;
+  email: string;
+  image: string;
+  blogs: Blog[];
+  followers: string[];
+  following: string[];
+}
 
+interface CurrentUser {
+  _id: string;
+  following: string[];
+}
+
+const ViewUser: React.FC = () => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [ourData, setOurData] = useState<CurrentUser | null>(null);
+  const { name } = useParams<{ name: string }>();
   const userId = localStorage.getItem("userId");
 
-  let isUser = localStorage.getItem("userId") === userData._id;
+  const isUser = userId === userData?._id;
 
   const getUserDetails = async () => {
     try {
@@ -20,11 +41,10 @@ const ViewUser = () => {
         `https://blog-app-2-5s8y.onrender.com/api/v1/user/${name}`
       );
       if (data.success) {
-        console.log(data);
         setUserData(data.user);
       }
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error fetching user details:", error);
     }
   };
 
@@ -33,12 +53,11 @@ const ViewUser = () => {
       const { data } = await axios.get(
         `https://blog-app-2-5s8y.onrender.com/api/v1/user/current/${userId}`
       );
-      if (data?.success) {
-        console.log("currentUser", data);
+      if (data.success) {
         setOurData(data.currentUser);
       }
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error fetching current user:", error);
     }
   };
 
@@ -50,49 +69,37 @@ const ViewUser = () => {
     getCurrentUser();
   }, []);
 
-  //our data -> this user
-  //userData -> that user
-
   const handleFollow = async () => {
     try {
       const { data } = await axios.post(
         `https://blog-app-2-5s8y.onrender.com/api/v1/user/follow/${name}`,
-        {
-          id: localStorage.getItem("userId"),
-        }
+        { id: userId }
       );
-
       if (data.success) {
-        // console.log(data);
-        window.location.reload();
         setOurData(data.myUser);
+        window.location.reload();
       }
     } catch (error) {
-      return console.log(error);
+      console.error("Error following user:", error);
     }
   };
+
   const handleUnFollow = async () => {
     try {
       const { data } = await axios.post(
         `https://blog-app-2-5s8y.onrender.com/api/v1/user/unfollow/${name}`,
-        {
-          id: localStorage.getItem("userId"),
-        }
+        { id: userId }
       );
-
       if (data.success) {
-        // console.log(data);
-        window.location.reload();
         setOurData(data.myUser);
+        window.location.reload();
       }
     } catch (error) {
-      return console.log(error);
+      console.error("Error unfollowing user:", error);
     }
   };
 
-  const weFollowHim = ourData?.following?.includes(userData._id);
-
-  //   console.log(weFollowHim);
+  const weFollowHim = ourData?.following?.includes(userData?._id || "");
 
   return (
     <Container className="mt-5">
@@ -101,17 +108,15 @@ const ViewUser = () => {
         <Row className="align-items-center">
           <Col md={3} className="text-center">
             <Image
-              src={
-                userData.image ? userData.image : require("../download.jpeg")
-              }
+              src={userData?.image || require("../download.jpeg")}
               roundedCircle
               className="mb-3"
               style={{ width: "150px", height: "150px", objectFit: "cover" }}
             />
           </Col>
           <Col md={6}>
-            <h3>{userData.username}</h3>
-            <p>{userData.email}</p>
+            <h3>{userData?.username}</h3>
+            <p>{userData?.email}</p>
             {!isUser ? (
               !weFollowHim ? (
                 <Button onClick={handleFollow}>Follow</Button>
@@ -120,31 +125,26 @@ const ViewUser = () => {
                   UnFollow
                 </Button>
               )
-            ) : (
-              ""
-            )}
+            ) : null}
           </Col>
           <Col md={3} className="text-center">
             <p>
               <strong>{userData?.blogs?.length || 0}</strong> Posts
             </p>
             <Link
-              to={`/${userData.username}/followers`}
+              to={`/${userData?.username}/followers`}
               style={{ textDecoration: "none", color: "black" }}
             >
               <p>
-                <strong>{userData?.followers?.length}</strong> Followers↗
-                {/* Placeholder for followers */}
+                <strong>{userData?.followers?.length || 0}</strong> Followers↗
               </p>
-            </Link>{" "}
+            </Link>
             <Link
-              to={`/${userData.username}/following`}
+              to={`/${userData?.username}/following`}
               style={{ textDecoration: "none", color: "black" }}
             >
-              {" "}
               <p>
-                <strong>{userData?.following?.length}</strong> Following↗{" "}
-                {/* Placeholder for following */}
+                <strong>{userData?.following?.length || 0}</strong> Following↗
               </p>
             </Link>
           </Col>
@@ -154,16 +154,17 @@ const ViewUser = () => {
       {/* Blog Grid Section */}
       <h4 className="mb-4">Blogs</h4>
       <Row>
-        {userData.blogs && userData.blogs.length > 0 ? (
-          userData.blogs.map((blog, index) => (
-            <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-4">
+        {userData?.blogs && userData.blogs.length > 0 ? (
+          userData.blogs.map((blog) => (
+            <Col key={blog._id} xs={12} sm={6} md={4} lg={3} className="mb-4">
               <BlogCard
                 title={blog.title}
+                description=""
                 image={blog.image}
                 username={userData.username}
                 time={blog.createdAt}
                 id={blog._id}
-                isUser={localStorage.getItem("userId") === blog.user}
+                userImage={userData.image}
               />
             </Col>
           ))

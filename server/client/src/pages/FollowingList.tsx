@@ -1,23 +1,28 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+type User = {
+  username: string;
+  image: string;
+};
+const FollowingList = () => {
+  const [list, setList] = useState<User[]>([]);
+  const { name } = useParams();
 
-const AllUsers = () => {
-  const [allUser, setAllUser] = useState([]);
-
-  const getAllUsers = async () => {
+  const getFollowingList = async () => {
     const { data } = await axios.get(
-      "https://blog-app-2-5s8y.onrender.com/api/v1/user/all-user"
+      `https://blog-app-2-5s8y.onrender.com/api/v1/user/following/list/${name}`
     );
     if (data?.success) {
       console.log(data);
-      setAllUser(data.users);
+      setList(data.following);
+      console.log("list", list);
     }
   };
 
   useEffect(() => {
-    getAllUsers();
+    getFollowingList();
   }, []);
 
   return (
@@ -29,8 +34,8 @@ const AllUsers = () => {
         }}
       >
         <Row>
-          {allUser.length > 0 ? (
-            allUser.map((user, index) => (
+          {list.length > 0 ? (
+            list.map((user, index) => (
               <Col key={index} xs={12} md={6} lg={4} className="mb-4">
                 {" "}
                 <Link
@@ -81,4 +86,4 @@ const AllUsers = () => {
   );
 };
 
-export default AllUsers;
+export default FollowingList;
