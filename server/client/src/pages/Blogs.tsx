@@ -36,7 +36,7 @@ const Blogs: React.FC = () => {
 
   useEffect(() => {
     getAllBlogs();
-  }, []);
+  }, [blogs]);
 
   return (
     <>
