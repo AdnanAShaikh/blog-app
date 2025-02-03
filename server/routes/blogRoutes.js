@@ -16,6 +16,9 @@ const router = express.Router();
 //GET all blog
 router.get("/all", getAllBlogsController);
 
+//GET one blog
+router.get("/:id", getBlogByIdController);
+
 //POST create blog
 router.post("/create", createBlogController);
 
@@ -24,9 +27,6 @@ router.put("/update/:id", updateBlogController);
 
 //DELETE blog
 router.delete("/delete/:id", deleteBlogController);
-
-//GET one blog
-// router.get("/:id", getBlogByIdController);
 
 router.get("/user/blogs/:id", getUserBlogByIdController);
 

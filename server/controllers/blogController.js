@@ -1,6 +1,7 @@
 const blogModel = require("../models/blogModel");
 const userModel = require("../models/userModel");
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 //GET ALL BLOGS
 exports.getAllBlogsController = async (req, res) => {
@@ -164,19 +165,23 @@ exports.getUserBlogByIdController = async (req, res) => {
 exports.commentController = async (req, res) => {
   try {
     const { id } = req.params;
-    const { text, postedBy } = req.body;
+    const { text, postedById } = req.body;
 
     const blog = await blogModel.findById(id);
 
-    const user = await userModel.findById(postedBy);
+    const user = await userModel.findById(postedById);
 
     if (!blog || !user) {
       return res.status(404).json({ message: "Blog or user not found" });
     }
 
+    const date = moment(Date.now()).fromNow();
+
     const newComment = {
       text,
-      postedBy: user.username,
+      username: user.username,
+      image: user.image,
+      date: date,
     };
 
     blog.comments.push(newComment);

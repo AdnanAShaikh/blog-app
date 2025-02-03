@@ -140,7 +140,7 @@ exports.getUserByName = async (req, res) => {
         .status(404)
         .json({ success: false, message: "No user exists! !!" });
     }
-
+    console.log(user);
     return res.status(200).json({ success: true, user });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
@@ -160,7 +160,7 @@ exports.getUserById = async (req, res) => {
         .json({ success: false, message: "No user exists! !!" });
     }
 
-    return res.status(200).json({ success: true, user: user.image });
+    return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error("Error fetching user:", error);
     return res.status(500).json({ success: false, message: "Server error" });

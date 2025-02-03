@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Button, Card, Col, Container, Image, Row } from "react-bootstrap";
-import BlogCard from "../components/BlogCard";
+import { useParams } from "react-router-dom";
+
 import Header1 from "src/components/Header1";
 import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Box } from "@mui/material";
+import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 interface Blog {
   _id: string;
@@ -29,7 +29,6 @@ interface UserData {
 }
 
 const ViewUser: React.FC = () => {
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const { name } = useParams<{ name: string }>();
   const userId = localStorage.getItem("userId");
@@ -38,12 +37,15 @@ const ViewUser: React.FC = () => {
   // Used to get Image
   const getCurrentUser = async () => {
     try {
-      const { data } = await axios.get(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/current/${userId}`
-      );
-      if (data.success) {
-        console.log("current User: ", data);
-        setCurrentUser(data.currentUser);
+      const cachedUser = sessionStorage.getItem(`user_${userId}`);
+      if (cachedUser) {
+        return setCurrentUser(JSON.parse(cachedUser));
+      } else {
+        const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
+        if (data.success) {
+          console.log("current User: ", data);
+          setCurrentUser(data.user);
+        }
       }
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -52,7 +54,7 @@ const ViewUser: React.FC = () => {
 
   useEffect(() => {
     getCurrentUser();
-  }, []);
+  }, [userId]);
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);

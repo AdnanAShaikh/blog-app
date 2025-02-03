@@ -14,6 +14,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import { baseAPIUrl } from "../utils/baseAPIUrl";
+import { User } from "../types/User";
 
 const Header1 = () => {
   const location = useLocation();
@@ -22,7 +23,7 @@ const Header1 = () => {
 
   const createUrl = location.pathname === "/create";
 
-  const [userData, setUserData] = useState({ user: "" });
+  const [userData, setUserData] = useState<User | null>(null);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -35,11 +36,10 @@ const Header1 = () => {
   const handleLogout = async () => {
     try {
       if (window.confirm("Do you want to Log Out? ")) {
-        sessionStorage.removeItem("hasVisitedBefore");
         dispatch(authActions.logout());
+        sessionStorage.removeItem("hasVisitedBefore");
         localStorage.removeItem("userId");
         window.location.reload();
-
         toast.success("Logged Out Successfully");
       } else {
         alert("You chose to remained Logged in...");
@@ -48,26 +48,32 @@ const Header1 = () => {
       console.log(error);
     }
   };
+
   const userId = localStorage.getItem("userId");
 
   // get User Data
   useEffect(() => {
-    const getUser = async () => {
-      console.log(userId);
-      const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
-      if (data.success) {
-        console.log(data);
-        setUserData(data);
+    const cachedUser = sessionStorage.getItem(`user_${userId}`);
+    if (cachedUser) {
+      setUserData(JSON.parse(cachedUser));
+    } else {
+      const getUser = async () => {
+        const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
+        if (data?.success) {
+          console.log(data);
+          setUserData(data?.user);
+          sessionStorage.setItem(`user_${userId}`, JSON.stringify(data.user));
 
-        const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
-        if (!hasVisitedBefore) {
-          toast.success(`Welcome back ${userData.user}`);
-          sessionStorage.setItem("hasVisitedBefore", "true"); // Mark as visited
+          const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
+          if (!hasVisitedBefore) {
+            toast.success(`Welcome back ${data.user.username}`);
+            sessionStorage.setItem("hasVisitedBefore", "true"); // Mark as visited
+          }
         }
-      }
-    };
-    getUser();
-  }, []);
+      };
+      getUser();
+    }
+  }, [userId]);
 
   return (
     <>
@@ -107,9 +113,6 @@ const Header1 = () => {
             {!createUrl && (
               <Link to="/create" className="mr-5">
                 <p className="hover:cursor-pointer flex items-center gap-1">
-                  <div>
-                    <HistoryEduIcon className="text-gray-600 hover:text-black" />
-                  </div>
                   <div className="flex items-center gap-1  ">
                     <p className="text-gray-600 hover:text-black">Write</p>
                   </div>
@@ -131,9 +134,11 @@ const Header1 = () => {
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden hover:opacity-80">
                   <img
-                    src={userData.user}
+                    src={userData?.image}
                     alt="user"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    loading="lazy"
+                    crossOrigin="anonymous"
                   />
                 </div>
               </Button>
@@ -170,7 +175,7 @@ const Header1 = () => {
                       },
                     }}
                     onClick={() => {
-                      navigate(`/user/${userData.user}`);
+                      navigate(`/user/${userData?.username}`);
                       handleClose();
                     }}
                     className="flex w-full"

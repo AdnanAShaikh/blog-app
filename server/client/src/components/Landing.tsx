@@ -18,10 +18,6 @@ const Landing = () => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    localStorage.removeItem("userId");
-  }, []);
-
   async function googleLogin() {
     try {
       const provider = new GoogleAuthProvider();
@@ -61,7 +57,10 @@ const Landing = () => {
       >
         <div>
           <div className="w-full flex justify-between px-[5%] lg:px-[15%] py-3 pt-6 items-center">
-            <h1 className="text-3xl font-bold hover:cursor-pointer max-lg:text-xl">
+            <h1
+              style={{ fontFamily: "Times New York" }}
+              className="text-4xl font-bold tracking-tight font-serif hover:cursor-pointer max-lg:text-xl"
+            >
               Medium
             </h1>
             <div className="flex items-center gap-7">

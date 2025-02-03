@@ -7,36 +7,16 @@ import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import Header1 from "src/components/Header1";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
-interface Comment {
-  postedBy: string;
-  text: string;
-}
-
-interface Blog {
-  _id: string;
-  title: string;
-  description: any;
-  image: string;
-  updatedAt: string;
-  createdAt: string;
-  user: {
-    username: string;
-    image: string;
-    followers: string[];
-    following: string[];
-  };
-  comments: Comment[];
-}
+import ResponseCard from "src/components/ResponseCard";
+import { Blog, Comment } from "src/types/Blog";
 
 const ViewBlog = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const { id } = useParams<{ id: string }>();
   const [comment, setComment] = useState<string>("");
+  const [isAuthor, setIsAuthor] = useState(false);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-
-  const isUser = userId === blog?.user?.username;
-  console.log(isUser);
 
   // Get blog details
   const getBlogDetail = async () => {
@@ -53,31 +33,46 @@ const ViewBlog = () => {
 
   useEffect(() => {
     getBlogDetail();
-  }, [id]);
+  }, []);
+
+  useEffect(() => {
+    if (blog) {
+      if (blog.user._id === userId) {
+        setIsAuthor(true);
+      } else {
+        setIsAuthor(false);
+      }
+    }
+  }, [blog, userId]);
 
   const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data } = await axios.post(
-      `https://blog-app-2-5s8y.onrender.com/api/v1/blog/${id}/comment`,
-      {
-        postedBy: userId,
-        text: comment,
-      }
-    );
-    if (data.success) {
-      toast.success("Comment added");
-      console.log(data);
-      setBlog((prevBlog) => {
-        if (prevBlog) {
-          return {
-            ...prevBlog,
-            comments: [...prevBlog.comments, data.newComment],
-          };
+    try {
+      if (comment !== "") {
+        const { data } = await axios.post(`${baseAPIUrl}/blog/${id}/comment`, {
+          postedById: userId,
+          text: comment,
+        });
+        if (data?.success) {
+          setComment(""); // Clear the comment input after submitting
+
+          toast.success("Comment added");
+          console.log(data);
+          setBlog((prevBlog) => {
+            if (prevBlog) {
+              return {
+                ...prevBlog,
+                comments: [...prevBlog.comments, data.newComment],
+              };
+            }
+            return prevBlog;
+          });
         }
-        return prevBlog;
-      });
-      setComment(""); // Clear the comment input after submitting
+      }
+    } catch (error) {
+      console.log("Error ", error);
     }
+    setComment(""); // Clear the comment input after submitting
   };
 
   const handleEdit = () => {
@@ -204,14 +199,57 @@ const ViewBlog = () => {
         {/* Responses Section */}
         <div className="w-1/2 mx-auto mt-10">
           <p className="text-3xl font-bold">Responses</p>
-          <input
-            type="text"
-            placeholder="What are your thoughts?"
-            className=" pt-3 pb-10 w-full my-10 focus:outline-none"
-          />
-          <div className="bg-gray-100 h-px mb-10"></div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // Prevent default form submission
+              addComment(e);
+            }}
+          >
+            <div className="">
+              <div>
+                <input
+                  type="text"
+                  placeholder="What are your thoughts?"
+                  className=" pt-3 pb-10 w-full my-10 focus:outline-none"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault(); // Prevent line break & default submission
+                      addComment(e);
+                    }
+                  }}
+                />
+              </div>
+              {comment !== "" && (
+                <div className="text-right mb-5">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-black text-white rounded-3xl"
+                  >
+                    Submit
+                  </button>
+                </div>
+              )}
+            </div>
+          </form>
 
           {/* Responses Array Section  */}
+          <div>
+            {blog?.comments.map((comment: Comment) => {
+              return (
+                <>
+                  <ResponseCard
+                    username={comment.username}
+                    image={comment.image}
+                    text={comment.text}
+                    date={comment.date}
+                    isAuthor={isAuthor}
+                  />
+                </>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>
