@@ -22,6 +22,7 @@ app.use(
     origin: "*",
   })
 );
+app.use("/uploads", express.static("uploads"));
 
 app.use(express.json());
 app.use(morgan("dev"));

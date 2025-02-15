@@ -3,12 +3,10 @@ import { authActions } from "../redux/store";
 import axios from "axios";
 import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
 import { SyncLoader } from "react-spinners";
 import GoogleIcon from "@mui/icons-material/Google";
-import { Alert, Snackbar } from "@mui/material";
-import toast from "react-hot-toast";
+
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 const Landing = () => {
@@ -40,6 +38,9 @@ const Landing = () => {
         setIsLoading(false);
         dispatch(authActions.login());
         localStorage.setItem("userId", data.user._id);
+        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("userImage", JSON.stringify(user.photoURL));
+
         window.location.reload();
       }
     } catch (error) {

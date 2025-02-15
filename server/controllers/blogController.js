@@ -144,7 +144,7 @@ exports.getBlogByIdController = async (req, res) => {
 
 exports.getUserBlogByIdController = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // user id
     const userBlog = await userModel.findById(id).populate("blogs");
 
     if (!userBlog) {

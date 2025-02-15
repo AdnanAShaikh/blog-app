@@ -1,8 +1,8 @@
-const { generateToken, authenticateToken } = require("../middlewares/jwt");
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const mongoose = require("mongoose");
-
+const path = require("path");
+const fs = require("fs");
+const axios = require("axios");
 //get all users
 exports.getAllUsers = async (req, res) => {
   try {
@@ -57,37 +57,57 @@ exports.googleLoginController = async (req, res) => {
   try {
     const { email, username, image, password } = req.body;
 
-    if (!email || !username) {
-      return res.status(401).json({ message: "Enter all details !" });
+    if (!email || !username || !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-
-    // const token = generateToken(username);
-    // res.cookie("jwt", token, { httpOnly: true });
 
     let user = await userModel.findOne({ email });
 
     if (!user) {
+      // Ensure uploads directory exists
+      const uploadDir = path.join(__dirname, "..", "uploads");
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      // Download image
+      let imagePath = null;
+      try {
+        const imageResponse = await axios.get(image, {
+          responseType: "arraybuffer",
+        });
+        imagePath = `uploads/${email}-profile.jpg`;
+        fs.writeFileSync(
+          path.join(__dirname, "..", imagePath),
+          imageResponse.data
+        );
+      } catch (err) {
+        console.error("Error downloading image:", err.message);
+        imagePath = "/default-avatar.jpg"; // Fallback image
+      }
+
+      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // Create user
       user = new userModel({
         username,
         email,
         password: hashedPassword,
-        image,
+        image: imagePath,
       });
 
       await user.save();
-      return res
-        .status(200)
-        .json({ success: true, message: "Login successful", user });
     }
 
     return res
       .status(200)
       .json({ success: true, message: "Login successful", user });
   } catch (error) {
-    console.log("Error: ", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error in googleLoginController:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
 };
 

@@ -12,9 +12,9 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
 import { baseAPIUrl } from "../utils/baseAPIUrl";
 import { User } from "../types/User";
+import { getCurrentUserImage } from "src/utils/currentUserImage";
 
 const Header1 = () => {
   const location = useLocation();
@@ -48,32 +48,29 @@ const Header1 = () => {
       console.log(error);
     }
   };
-
-  const userId = localStorage.getItem("userId");
-
   // get User Data
-  useEffect(() => {
-    const cachedUser = sessionStorage.getItem(`user_${userId}`);
-    if (cachedUser) {
-      setUserData(JSON.parse(cachedUser));
-    } else {
-      const getUser = async () => {
-        const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
-        if (data?.success) {
-          console.log(data);
-          setUserData(data?.user);
-          sessionStorage.setItem(`user_${userId}`, JSON.stringify(data.user));
+  const userId = localStorage.getItem("userId");
+  const fetchUser = async () => {
+    const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
+    if (data?.success) {
+      setUserData(data.user);
 
-          const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
-          if (!hasVisitedBefore) {
-            toast.success(`Welcome back ${data.user.username}`);
-            sessionStorage.setItem("hasVisitedBefore", "true"); // Mark as visited
-          }
-        }
-      };
-      getUser();
+      const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
+      if (!hasVisitedBefore) {
+        toast.success(`Welcome back ${data?.username}`);
+        sessionStorage.setItem("hasVisitedBefore", "true");
+      }
     }
-  }, [userId]);
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    console.log(userData);
+    console.log(`${process.env.REACT_APP_LOCAL_SERVER_URL}${userData?.image}`);
+  }, [userData]);
 
   return (
     <>
@@ -134,11 +131,9 @@ const Header1 = () => {
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden hover:opacity-80">
                   <img
-                    src={userData?.image}
+                    src={getCurrentUserImage(userData)}
                     alt="user"
                     className="w-full h-full"
-                    loading="lazy"
-                    crossOrigin="anonymous"
                   />
                 </div>
               </Button>
