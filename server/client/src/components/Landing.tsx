@@ -15,7 +15,10 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
-
+  useEffect(() => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
+  }, []);
   async function googleLogin() {
     try {
       const provider = new GoogleAuthProvider();
@@ -35,11 +38,14 @@ const Landing = () => {
         password: user.uid,
       });
       if (data.success) {
+        const userData = {
+          image: data?.user.image,
+          username: data?.user.username,
+        };
         setIsLoading(false);
         dispatch(authActions.login());
         localStorage.setItem("userId", data.user._id);
-        localStorage.setItem("user", JSON.stringify(data));
-        localStorage.setItem("userImage", JSON.stringify(user.photoURL));
+        localStorage.setItem("user", JSON.stringify(userData));
 
         window.location.reload();
       }

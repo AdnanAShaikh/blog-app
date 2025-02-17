@@ -7,9 +7,11 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Box } from "@mui/material";
+import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import toast from "react-hot-toast";
 
 interface Blog {
   _id: string;
@@ -33,6 +35,9 @@ const ViewUser: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [value, setValue] = React.useState("1");
 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
   // Used to get Image
   const userId = localStorage.getItem("userId");
   const fetchUser = async () => {
@@ -50,6 +55,12 @@ const ViewUser: React.FC = () => {
     setValue(newValue);
   };
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
   // const handleFollow = async () => {
   //   try {
   //     const { data } = await axios.post(
@@ -90,7 +101,68 @@ const ViewUser: React.FC = () => {
           <div className="w-3/4 border-r-2 pr-32 ">
             <div className="flex justify-between items-center pt-14">
               <p className="text-6xl ">{userData?.username}</p>
-              <p className="text-3xl">...</p>
+              <Button
+                disableRipple
+                sx={{
+                  backgroundColor: "transparent",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                  },
+                  "&:focus": {
+                    color: "black",
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={handleClick}
+              >
+                <MoreHorizIcon
+                  className="hover:cursor-pointer text-gray-500 hover:text-black"
+                  fontSize="large"
+                />
+              </Button>
+              <Menu
+                sx={{
+                  ".MuiMenuItem-root": {
+                    ":hover": {
+                      backgroundColor: "transparent",
+                    },
+                  },
+                  "& .MuiMenu-paper": {
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                  },
+                }}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
+                  }}
+                  className="flex w-full"
+                >
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      handleClose();
+                      toast.success("Link Copied");
+                    }}
+                  >
+                    <p>Copy Profile Link</p>
+                  </div>
+                </MenuItem>
+              </Menu>
             </div>
             <div className="mt-10">
               <TabContext value={value}>

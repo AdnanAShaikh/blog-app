@@ -9,6 +9,8 @@ import Header1 from "src/components/Header1";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ResponseCard from "src/components/ResponseCard";
 import { Blog, Comment } from "src/types/Blog";
+import { getCurrentUserImage } from "src/utils/currentUserImage";
+import { Button, Menu, MenuItem } from "@mui/material";
 
 const ViewBlog = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
@@ -17,7 +19,12 @@ const ViewBlog = () => {
   const [isAuthor, setIsAuthor] = useState(false);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const [value, setValue] = React.useState("1");
 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const open1 = Boolean(anchorEl1);
   // Get blog details
   const getBlogDetail = async () => {
     try {
@@ -75,10 +82,6 @@ const ViewBlog = () => {
     setComment(""); // Clear the comment input after submitting
   };
 
-  const handleEdit = () => {
-    navigate(`/blog-details/${id}`);
-  };
-
   const handleDelete = async () => {
     try {
       const { data } = await axios.delete(
@@ -103,6 +106,19 @@ const ViewBlog = () => {
 
   const blogDate = formatDate(blog?.createdAt);
 
+  const handleClose = () => {
+    setAnchorEl(null);
+    setAnchorEl1(null);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClick1 = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl1(event.currentTarget);
+  };
+
   return (
     <>
       <Header1 />
@@ -114,7 +130,7 @@ const ViewBlog = () => {
           <div className="w-11 h-11 rounded-full overflow-hidden">
             <img
               className="w-full h-full object-cover"
-              src={blog?.user.image}
+              src={getCurrentUserImage(blog?.user)}
               alt="user"
             />
           </div>
@@ -136,13 +152,95 @@ const ViewBlog = () => {
                 <ModeCommentOutlinedIcon /> 27
               </div>
             </div>
-            <div className="">
-              <MoreHorizIcon fontSize="medium" />
+            <div>
+              <Button
+                disableRipple
+                sx={{
+                  backgroundColor: "transparent",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                  },
+                  "&:focus": {
+                    color: "black",
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={handleClick1}
+              >
+                <MoreHorizIcon
+                  className="hover:cursor-pointer text-gray-500 hover:text-black"
+                  fontSize="large"
+                />
+              </Button>
+              <Menu
+                sx={{
+                  ".MuiMenuItem-root": {
+                    ":hover": {
+                      backgroundColor: "transparent",
+                    },
+                  },
+                  "& .MuiMenu-paper": {
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                  },
+                }}
+                id="basic-menu"
+                anchorEl={anchorEl1}
+                open={open1}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                {blog?.user._id === userId && (
+                  <MenuItem
+                    sx={{
+                      color: "#6b6b6b",
+                      "&:hover": {
+                        backgroundColor: "transparent", // Remove hover background
+                        color: "#000",
+                      },
+                    }}
+                    className="flex w-full"
+                  >
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={() => {
+                        navigate(`/edit/${blog._id}`);
+                      }}
+                    >
+                      <p>Edit</p>
+                    </div>
+                  </MenuItem>
+                )}
+
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
+                  }}
+                  className="flex w-full"
+                >
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      handleClose();
+                    }}
+                  >
+                    <p>Copy Blog Link</p>
+                  </div>
+                </MenuItem>
+              </Menu>
             </div>
           </div>
           <div className="bg-gray-100 h-px"></div>
         </div>
-        <div className="w-1/2 mx-auto mt-10">
+        <div className="w-1/2 mx-auto mt-10 text-xl">
           <div dangerouslySetInnerHTML={{ __html: blog?.description }} />
         </div>
 
@@ -161,7 +259,89 @@ const ViewBlog = () => {
               </div>
             </div>
             <div className="">
-              <MoreHorizIcon fontSize="medium" />
+              <Button
+                disableRipple
+                sx={{
+                  backgroundColor: "transparent",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                  },
+                  "&:focus": {
+                    color: "black",
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={handleClick}
+              >
+                <MoreHorizIcon
+                  className="hover:cursor-pointer text-gray-500 hover:text-black"
+                  fontSize="large"
+                />
+              </Button>
+              <Menu
+                sx={{
+                  ".MuiMenuItem-root": {
+                    ":hover": {
+                      backgroundColor: "transparent",
+                    },
+                  },
+                  "& .MuiMenu-paper": {
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                  },
+                }}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                {blog?.user._id === userId && (
+                  <MenuItem
+                    sx={{
+                      color: "#6b6b6b",
+                      "&:hover": {
+                        backgroundColor: "transparent", // Remove hover background
+                        color: "#000",
+                      },
+                    }}
+                    className="flex w-full"
+                  >
+                    <div
+                      className="flex items-center gap-2"
+                      onClick={() => {
+                        navigate(`/edit/${blog._id}`);
+                      }}
+                    >
+                      <p>Edit</p>
+                    </div>
+                  </MenuItem>
+                )}
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
+                  }}
+                  className="flex w-full"
+                >
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      handleClose();
+                      toast.success("Link Copied");
+                    }}
+                  >
+                    <p>Copy Blog Link</p>
+                  </div>
+                </MenuItem>
+              </Menu>
             </div>
           </div>
         </div>
@@ -172,7 +352,7 @@ const ViewBlog = () => {
             <div className="w-11 h-11 rounded-full overflow-hidden">
               <img
                 className="w-full h-full object-cover"
-                src={blog?.user.image}
+                src={getCurrentUserImage(blog?.user)}
                 alt="user"
               />
             </div>

@@ -49,28 +49,19 @@ const Header1 = () => {
     }
   };
   // get User Data
-  const userId = localStorage.getItem("userId");
-  const fetchUser = async () => {
-    const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
-    if (data?.success) {
-      setUserData(data.user);
+  const user = JSON.parse(localStorage.getItem("user") || "");
 
-      const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
-      if (!hasVisitedBefore) {
-        toast.success(`Welcome back ${data?.username}`);
-        sessionStorage.setItem("hasVisitedBefore", "true");
-      }
+  const fetchUser = async () => {
+    const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
+    if (!hasVisitedBefore) {
+      toast.success(`Welcome back ${user?.username}`);
+      sessionStorage.setItem("hasVisitedBefore", "true");
     }
   };
 
   useEffect(() => {
     fetchUser();
   }, []);
-
-  useEffect(() => {
-    console.log(userData);
-    console.log(`${process.env.REACT_APP_LOCAL_SERVER_URL}${userData?.image}`);
-  }, [userData]);
 
   return (
     <>
@@ -123,6 +114,14 @@ const Header1 = () => {
             <div>
               <Button
                 id="basic-button"
+                disableRipple
+                sx={{
+                  backgroundColor: "transparent",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                  },
+                }}
                 aria-controls={open ? "basic-menu" : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? "true" : undefined}
@@ -131,7 +130,7 @@ const Header1 = () => {
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden hover:opacity-80">
                   <img
-                    src={getCurrentUserImage(userData)}
+                    src={getCurrentUserImage(user)}
                     alt="user"
                     className="w-full h-full"
                   />
