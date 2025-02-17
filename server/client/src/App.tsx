@@ -10,6 +10,7 @@ import ViewUser from "./pages/ViewUser";
 import AllUsers from "./pages/AllUsers";
 import FollowerList from "./pages/FollowerList";
 import FollowingList from "./pages/FollowingList";
+import EditBlogScreen from "./pages/EditBlogScreen";
 
 function App() {
   const isLogin = localStorage.getItem("userId");
@@ -23,6 +24,15 @@ function App() {
           element={
             <AuthRoute>
               <CreateBlog />
+            </AuthRoute>
+          }
+        />
+
+        <Route
+          path="/edit/:blogId"
+          element={
+            <AuthRoute>
+              <EditBlogScreen />
             </AuthRoute>
           }
         />

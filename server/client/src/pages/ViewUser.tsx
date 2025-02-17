@@ -7,8 +7,11 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Box } from "@mui/material";
+import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
+import { getCurrentUserImage } from "src/utils/currentUserImage";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import toast from "react-hot-toast";
 
 interface Blog {
   _id: string;
@@ -29,66 +32,64 @@ interface UserData {
 }
 
 const ViewUser: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const { name } = useParams<{ name: string }>();
-  const userId = localStorage.getItem("userId");
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [value, setValue] = React.useState("1");
 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
   // Used to get Image
-  const getCurrentUser = async () => {
-    try {
-      const cachedUser = sessionStorage.getItem(`user_${userId}`);
-      if (cachedUser) {
-        return setCurrentUser(JSON.parse(cachedUser));
-      } else {
-        const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
-        if (data.success) {
-          console.log("current User: ", data);
-          setCurrentUser(data.user);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching current user:", error);
+  const userId = localStorage.getItem("userId");
+  const fetchUser = async () => {
+    const { data } = await axios.get(`${baseAPIUrl}/user/${userId}`);
+    if (data?.success) {
+      setUserData(data.user);
     }
   };
 
   useEffect(() => {
-    getCurrentUser();
-  }, [userId]);
+    fetchUser();
+  }, []);
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
-  const handleFollow = async () => {
-    try {
-      const { data } = await axios.post(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/follow/${name}`,
-        { id: userId }
-      );
-      if (data.success) {
-        setCurrentUser(data.myUser);
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Error following user:", error);
-    }
+  const handleClose = () => {
+    setAnchorEl(null);
   };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  // const handleFollow = async () => {
+  //   try {
+  //     const { data } = await axios.post(
+  //       `https://blog-app-2-5s8y.onrender.com/api/v1/user/follow/${name}`,
+  //       { id: userId }
+  //     );
+  //     if (data.success) {
+  //       setCurrentUser(data.myUser);
+  //       window.location.reload();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error following user:", error);
+  //   }
+  // };
 
-  const handleUnFollow = async () => {
-    try {
-      const { data } = await axios.post(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/user/unfollow/${name}`,
-        { id: userId }
-      );
-      if (data.success) {
-        setCurrentUser(data.myUser);
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Error unfollowing user:", error);
-    }
-  };
+  // const handleUnFollow = async () => {
+  //   try {
+  //     const { data } = await axios.post(
+  //       `https://blog-app-2-5s8y.onrender.com/api/v1/user/unfollow/${name}`,
+  //       { id: userId }
+  //     );
+  //     if (data.success) {
+  //       setCurrentUser(data.myUser);
+  //       window.location.reload();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error unfollowing user:", error);
+  //   }
+  // };
 
   // const weFollowHim = currentUser?.following?.includes(userData?._id || "");
 
@@ -99,8 +100,69 @@ const ViewUser: React.FC = () => {
         <div className="flex w-[63%] ">
           <div className="w-3/4 border-r-2 pr-32 ">
             <div className="flex justify-between items-center pt-14">
-              <p className="text-6xl ">{currentUser?.username}</p>
-              <p className="text-3xl">...</p>
+              <p className="text-6xl ">{userData?.username}</p>
+              <Button
+                disableRipple
+                sx={{
+                  backgroundColor: "transparent",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    boxShadow: "none",
+                  },
+                  "&:focus": {
+                    color: "black",
+                    boxShadow: "none",
+                  },
+                }}
+                onClick={handleClick}
+              >
+                <MoreHorizIcon
+                  className="hover:cursor-pointer text-gray-500 hover:text-black"
+                  fontSize="large"
+                />
+              </Button>
+              <Menu
+                sx={{
+                  ".MuiMenuItem-root": {
+                    ":hover": {
+                      backgroundColor: "transparent",
+                    },
+                  },
+                  "& .MuiMenu-paper": {
+                    paddingLeft: "1rem",
+                    paddingRight: "1rem",
+                  },
+                }}
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  "aria-labelledby": "basic-button",
+                }}
+              >
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
+                  }}
+                  className="flex w-full"
+                >
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      handleClose();
+                      toast.success("Link Copied");
+                    }}
+                  >
+                    <p>Copy Profile Link</p>
+                  </div>
+                </MenuItem>
+              </Menu>
             </div>
             <div className="mt-10">
               <TabContext value={value}>
@@ -144,11 +206,11 @@ const ViewUser: React.FC = () => {
               <div className="w-20 h-20 rounded-full overflow-hidden">
                 <img
                   className="object-cover"
-                  src={currentUser?.image}
+                  src={getCurrentUserImage(userData)}
                   alt="user"
                 />
               </div>
-              <p className="font-medium">{currentUser?.username}</p>
+              <p className="font-medium">{userData?.username}</p>
               <p className="mt-5 text-green-700"> Edit Profile</p>
             </div>
           </div>

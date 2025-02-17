@@ -1,8 +1,9 @@
-import { Tooltip } from "@mui/material";
+import { Button, Menu, MenuItem, Tooltip } from "@mui/material";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 type BlogCardProps = {
   title: string;
@@ -32,6 +33,17 @@ export default function BlogCard({
       month: "long",
       day: "numeric",
     });
+  };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const { user } = JSON.parse(localStorage.getItem("user") || "");
+  const handleClose = (e: any) => {
+    e.stopPropagation();
+    setAnchorEl(null);
+  };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
   return (
@@ -80,18 +92,125 @@ export default function BlogCard({
 
           <div dangerouslySetInnerHTML={{ __html: description.slice(0, 20) }} />
 
-          <div className="flex gap-5 items-center mt-5 ">
-            <span>{formatCreatedAt(time)} </span>
-            <Tooltip title="11.2k likes" arrow>
-              <span className="flex items-center gap-2">
-                <ThumbUpOffAltIcon /> <p>11.2k</p>{" "}
-              </span>
-            </Tooltip>
-            <Tooltip title="235 responses" arrow>
-              <span className="flex items-center gap-2">
-                <ModeCommentOutlinedIcon /> <p>235 </p>
-              </span>
-            </Tooltip>
+          <div className="flex mt-5 items-center justify-between">
+            <div className="flex gap-5 items-center ">
+              <span>{formatCreatedAt(time)} </span>
+              <Tooltip title="11.2k likes" arrow>
+                <span className="flex items-center gap-2">
+                  <ThumbUpOffAltIcon /> <p>11.2k</p>{" "}
+                </span>
+              </Tooltip>
+              <Tooltip title="235 responses" arrow>
+                <span className="flex items-center gap-2">
+                  <ModeCommentOutlinedIcon /> <p>235 </p>
+                </span>
+              </Tooltip>
+            </div>
+            <Button
+              disableRipple
+              sx={{
+                backgroundColor: "transparent",
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  boxShadow: "none",
+                },
+                "&:focus": {
+                  color: "black",
+                  boxShadow: "none",
+                },
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClick(e);
+              }}
+            >
+              <MoreHorizIcon
+                className="hover:cursor-pointer text-gray-500 hover:text-black"
+                fontSize="large"
+              />
+            </Button>
+            <Menu
+              sx={{
+                ".MuiMenuItem-root": {
+                  ":hover": {
+                    backgroundColor: "transparent",
+                  },
+                },
+                "& .MuiMenu-paper": {
+                  paddingLeft: "1rem",
+                  paddingRight: "1rem",
+                },
+              }}
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+            >
+              <MenuItem
+                sx={{
+                  color: "#6b6b6b",
+                  "&:hover": {
+                    backgroundColor: "transparent", // Remove hover background
+                    color: "#000",
+                  },
+                }}
+                className="flex w-full"
+              >
+                <div
+                  className="flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/edit/${id}`);
+                  }}
+                >
+                  <p>Edit</p>
+                </div>
+              </MenuItem>
+              {user?.blogs?.map((blogId: any) => blogId === id) && (
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
+                  }}
+                  className="flex w-full"
+                >
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <p>Follow Author</p>
+                  </div>
+                </MenuItem>
+              )}
+
+              <MenuItem
+                sx={{
+                  color: "#6b6b6b",
+                  "&:hover": {
+                    backgroundColor: "transparent", // Remove hover background
+                    color: "#000",
+                  },
+                }}
+                className="flex w-full"
+              >
+                <div
+                  className="flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <p>Block</p>
+                </div>
+              </MenuItem>
+            </Menu>
           </div>
         </div>
 

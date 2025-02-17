@@ -15,6 +15,7 @@ const {
 
 const router = express.Router();
 
+//----- Static Routes -------
 //GET all users
 router.get("/all-user", getAllUsers);
 
@@ -24,12 +25,11 @@ router.post("/register", registerController);
 // Login
 router.post("/login", loginController);
 
-//get user by name
-router.get("/name/:name", getUserByName);
+//google login
+router.post("/google/login", googleLoginController);
 
-//get user by id
-router.get("/:id", getUserById);
-
+// ------------------------------------------------------------------------
+// ----- Dynamic Routes -----
 //follow by name
 router.post("/follow/:name", followUser);
 
@@ -45,7 +45,10 @@ router.get("/follower/list/:name", getFollowersList);
 //following list
 router.get("/following/list/:name", getFollowingList);
 
-//google login
-router.post("/google/login", googleLoginController);
+//get user by name
+router.get("/name/:name", getUserByName);
+
+//get user by id
+router.get("/:id", getUserById);
 
 module.exports = router;

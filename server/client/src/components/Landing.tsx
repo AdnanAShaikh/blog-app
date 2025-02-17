@@ -3,12 +3,10 @@ import { authActions } from "../redux/store";
 import axios from "axios";
 import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
 import { SyncLoader } from "react-spinners";
 import GoogleIcon from "@mui/icons-material/Google";
-import { Alert, Snackbar } from "@mui/material";
-import toast from "react-hot-toast";
+
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 const Landing = () => {
@@ -17,7 +15,10 @@ const Landing = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
-
+  useEffect(() => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
+  }, []);
   async function googleLogin() {
     try {
       const provider = new GoogleAuthProvider();
@@ -37,9 +38,15 @@ const Landing = () => {
         password: user.uid,
       });
       if (data.success) {
+        const userData = {
+          image: data?.user.image,
+          username: data?.user.username,
+        };
         setIsLoading(false);
         dispatch(authActions.login());
         localStorage.setItem("userId", data.user._id);
+        localStorage.setItem("user", JSON.stringify(userData));
+
         window.location.reload();
       }
     } catch (error) {
