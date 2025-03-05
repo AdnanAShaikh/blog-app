@@ -1,18 +1,22 @@
 import { Button, Menu, MenuItem, Tooltip } from "@mui/material";
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import axios from "axios";
+import { baseAPIUrl } from "src/utils/baseAPIUrl";
+import { User } from "src/types/User";
 
 type BlogCardProps = {
   title: string;
   description: string;
   image: string;
-  username: string;
+  username?: string;
+  usernameAt?: string;
   time: string;
   id: string | number;
-  userImage: string;
+  userImage?: string;
   isUser?: boolean;
 };
 
@@ -21,11 +25,16 @@ export default function BlogCard({
   description,
   image,
   username,
+  usernameAt,
   time,
   id,
   userImage,
 }: BlogCardProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isUserProfilePage = location.pathname.startsWith("/user/"); //check if blog in /all or in viewUser.tsx
+
   const formatCreatedAt = (createdAt: string | Date): string => {
     const date = new Date(createdAt);
     return date.toLocaleDateString("en-US", {
@@ -37,7 +46,27 @@ export default function BlogCard({
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { user } = JSON.parse(localStorage.getItem("user") || "");
+
+  const [currentUserData, setCurrentUserData] = useState<User>();
+  // const [isUser,setIsUser] = useState(false)
+  const fetchCurrentUser = async () => {
+    try {
+      const { data } = await axios.get(`${baseAPIUrl}/user/current`, {
+        withCredentials: true,
+      });
+      if (data?.success) {
+        console.log("User:", data);
+        setCurrentUserData(data?.user);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
   const handleClose = (e: any) => {
     e.stopPropagation();
     setAnchorEl(null);
@@ -55,24 +84,26 @@ export default function BlogCard({
     >
       {/* top level */}
       <div className="flex items-center gap-3 mb-3 ">
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/user/${username}`);
-          }}
-          className="w-6 h-6 rounded-full overflow-hidden hover:opacity-65"
-        >
-          <img
-            className="h-full w-full object-cover "
-            src={userImage}
-            alt="user img"
-          />
-        </div>
+        {!isUserProfilePage && (
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/user/${usernameAt}`);
+            }}
+            className="w-6 h-6 rounded-full overflow-hidden hover:opacity-65"
+          >
+            <img
+              className="h-full w-full object-cover "
+              src={userImage}
+              alt="user img"
+            />
+          </div>
+        )}
 
         <span
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/user/${username}`);
+            navigate(`/user/${usernameAt}`);
           }}
           className="hover:underline"
         >
@@ -169,7 +200,7 @@ export default function BlogCard({
                   <p>Edit</p>
                 </div>
               </MenuItem>
-              {user?.blogs?.map((blogId: any) => blogId === id) && (
+              {currentUserData?.blogs?.map((blogId: any) => blogId !== id) && (
                 <MenuItem
                   sx={{
                     color: "#6b6b6b",
@@ -190,26 +221,27 @@ export default function BlogCard({
                   </div>
                 </MenuItem>
               )}
-
-              <MenuItem
-                sx={{
-                  color: "#6b6b6b",
-                  "&:hover": {
-                    backgroundColor: "transparent", // Remove hover background
-                    color: "#000",
-                  },
-                }}
-                className="flex w-full"
-              >
-                <div
-                  className="flex items-center gap-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
+              {currentUserData?.blogs?.map((blogId: any) => blogId !== id) && (
+                <MenuItem
+                  sx={{
+                    color: "#6b6b6b",
+                    "&:hover": {
+                      backgroundColor: "transparent", // Remove hover background
+                      color: "#000",
+                    },
                   }}
+                  className="flex w-full"
                 >
-                  <p>Block</p>
-                </div>
-              </MenuItem>
+                  <div
+                    className="flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <p>Block</p>
+                  </div>
+                </MenuItem>
+              )}
             </Menu>
           </div>
         </div>

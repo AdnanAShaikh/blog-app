@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { authActions } from "../redux/store";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import axios from "axios";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -12,8 +11,6 @@ import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import LogoutIcon from "@mui/icons-material/Logout";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import { baseAPIUrl } from "../utils/baseAPIUrl";
-import { User } from "../types/User";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 
 const Header1 = () => {
@@ -23,7 +20,6 @@ const Header1 = () => {
 
   const createUrl = location.pathname === "/create";
 
-  const [userData, setUserData] = useState<User | null>(null);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -36,7 +32,7 @@ const Header1 = () => {
   const handleLogout = async () => {
     try {
       if (window.confirm("Do you want to Log Out? ")) {
-        dispatch(authActions.logout());
+        dispatch(logout());
         sessionStorage.removeItem("hasVisitedBefore");
         localStorage.removeItem("userId");
         window.location.reload();
@@ -67,9 +63,9 @@ const Header1 = () => {
     <>
       <div className="flex justify-between items-center px-4 py-2">
         {/* 1st section */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center justify-end w-1/6 gap-5">
           <h3
-            className="font-extrabold hover:cursor-pointer tracking-tighter"
+            className="font-extrabold hover:cursor-pointer tracking-tighter "
             onClick={() => {
               navigate("/");
             }}
@@ -77,7 +73,7 @@ const Header1 = () => {
           >
             Medium
           </h3>
-          <div className="flex items-center bg-slate-100 px-3 gap-5 py-2 rounded-full">
+          {/* <div className="flex items-center bg-slate-100 px-3 gap-5 py-2 rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -92,7 +88,7 @@ const Header1 = () => {
               placeholder="Search"
               className="bg-slate-100 focus:outline-none"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* 2nd section */}
@@ -169,7 +165,7 @@ const Header1 = () => {
                       },
                     }}
                     onClick={() => {
-                      navigate(`/user/${userData?.username}`);
+                      navigate(`/user/${user?.usernameAt}`);
                       handleClose();
                     }}
                     className="flex w-full"

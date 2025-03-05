@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { SyncLoader } from "react-spinners";
-import BlogCard from "../BlogCard";
+import BlogCard from "./BlogCard";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
+import { User } from "src/types/User";
 
 type BlogMainProps = {
   blogs: any[];
@@ -13,10 +14,7 @@ type BlogCardProps = {
   title: string;
   description: string;
   image: string;
-  user: {
-    username: string;
-    image: string;
-  };
+  user: User;
   createdAt: string;
 };
 
@@ -44,6 +42,7 @@ const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
                       time={blog.createdAt}
                       username={blog?.user?.username}
                       userImage={getCurrentUserImage(blog?.user)}
+                      usernameAt={blog?.user?.usernameAt}
                     />
                   </div>
                 ))

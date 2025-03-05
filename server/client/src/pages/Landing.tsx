@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { authActions } from "../redux/store";
+import { login } from "../redux/authSlice";
 import axios from "axios";
-import { auth } from "./firebase";
+import { auth } from "../components/firebase";
 import { useDispatch } from "react-redux";
 import { GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
 import { SyncLoader } from "react-spinners";
@@ -9,6 +9,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
+axios.defaults.withCredentials = true;
 const Landing = () => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
@@ -31,19 +32,25 @@ const Landing = () => {
 
       setIsLoading(true);
 
-      const { data } = await axios.post(`${baseAPIUrl}/user/google/login`, {
-        email: user.email,
-        username: user.displayName,
-        image: user.photoURL,
-        password: user.uid,
-      });
-      if (data.success) {
+      const { data } = await axios.post(
+        `${baseAPIUrl}/user/google/login`,
+        {
+          email: user.email,
+          username: user.displayName,
+          image: user.photoURL,
+          password: user.uid,
+        },
+        { withCredentials: true }
+      );
+      if (data?.success) {
+        console.log(data);
         const userData = {
           image: data?.user.image,
           username: data?.user.username,
+          usernameAt: data?.user.usernameAt,
         };
         setIsLoading(false);
-        dispatch(authActions.login());
+        dispatch(login());
         localStorage.setItem("userId", data.user._id);
         localStorage.setItem("user", JSON.stringify(userData));
 
@@ -71,14 +78,14 @@ const Landing = () => {
               Medium
             </h1>
             <div className="flex items-center gap-7">
-              <p className="hover:cursor-pointer hover:underline max-md:hidden">
+              <p className="relative cursor-pointer max-md:hidden after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-black after:transition-all after:duration-500 hover:after:w-full">
                 Our Story
               </p>
-              <p className="hover:cursor-pointer hover:underline max-md:hidden">
+              <p className="hover:cursor-pointer max-md:hidden relative after:absolute after:w-0 after:left-0 after:bottom-0 after:h-[2px] after:bg-black after:transition-all after:duration-500 hover:after:w-full">
                 Write
               </p>
               <p
-                className="hover:cursor-pointer hover:underline max-sm:hidden"
+                className="hover:cursor-pointer max-sm:hidden relative after:absolute after:w-0 after:h-[2px] after:bg-black after:transition-all after:duration-500 hover:after:w-full after:bottom-0 after:left-0"
                 onClick={() => {
                   setIsSignInModalOpen(true);
                 }}
@@ -89,7 +96,7 @@ const Landing = () => {
                 onClick={() => {
                   setIsSignUpModalOpen(true);
                 }}
-                className="bg-black p-2 px-4 hover:opacity-60 rounded-3xl text-white"
+                className="bg-black p-2 px-4 hover:opacity-60 rounded-3xl transition-all duration-300 text-white"
               >
                 Get Started
               </button>
@@ -112,7 +119,7 @@ const Landing = () => {
               <p className="text-lg mb-10">
                 A place to read, write, and deepen your understanding
               </p>
-              <button className="bg-black text-xl p-2 px-10 hover:opacity-60 rounded-3xl text-white">
+              <button className="bg-black text-xl p-2 px-10 hover:opacity-60 rounded-3xl transition-all duration-300 text-white">
                 Start Reading
               </button>
             </div>

@@ -1,4 +1,6 @@
 const userModel = require("../models/userModel");
+const blogModel = require("../models/blogModel");
+
 const bcrypt = require("bcrypt");
 const path = require("path");
 const fs = require("fs");
@@ -88,9 +90,10 @@ exports.googleLoginController = async (req, res) => {
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
-
+      const usernameAt = "@" + email?.split("@")[0];
       // Create user
       user = new userModel({
+        usernameAt,
         username,
         email,
         password: hashedPassword,
@@ -100,9 +103,23 @@ exports.googleLoginController = async (req, res) => {
       await user.save();
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Login successful", user });
+    res.cookie("userId", user._id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user: {
+        image: user?.image,
+        username: user?.username,
+        usernameAt: user?.usernameAt,
+      },
+      userId: user._id,
+    });
   } catch (error) {
     console.error("Error in googleLoginController:", error);
     return res
@@ -151,9 +168,9 @@ exports.loginController = async (req, res) => {
 
 exports.getUserByName = async (req, res) => {
   try {
-    const name = req.params.name;
+    const { usernameAt } = req.params;
 
-    const user = await userModel.findOne({ username: name }).populate("blogs");
+    const user = await userModel.findOne({ usernameAt }).populate("blogs");
 
     if (!user) {
       return res
@@ -171,7 +188,7 @@ exports.getUserById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await userModel.findById(id);
+    const user = await userModel.findById(id).populate("blogs");
 
     if (!user) {
       console.log("User not found in database!");
@@ -189,65 +206,41 @@ exports.getUserById = async (req, res) => {
 
 exports.followUser = async (req, res) => {
   try {
-    const name = req.params.name; // The name of the user to follow
-    const { id } = req.body; // My user ID
+    const { fromUserId, toUserId } = req.body; // From (current) -> To (viewing)
 
-    const myUser = await userModel.findById(id);
-    const thatUser = await userModel.findOne({ username: name });
+    const fromUser = await userModel.findById(fromUserId);
+    const toUser = await userModel.findById(toUserId);
 
-    if (!myUser || !thatUser) {
+    if (!fromUser || !toUser) {
       return res
         .status(404)
         .json({ success: false, message: "No user exists!" });
     }
 
-    // Check if the user is already following the other user by comparing IDs
-    if (!myUser.following.includes(thatUser._id)) {
-      myUser.following.push(thatUser._id); // Add the other user's ID to my following list
-      thatUser.followers.push(myUser._id); // Add my user ID to the other user's followers list
+    if (!fromUser.following.includes(toUser._id)) {
+      fromUser.following.push(toUser._id);
+      toUser.followers.push(fromUser._id);
 
-      await myUser.save(); // Save the updated myUser document
-      await thatUser.save(); // Save the updated thatUser document
+      await fromUser.save();
+      await toUser.save();
 
-      return res.status(200).json({ success: true, myUser, thatUser });
-    } else {
-      return res.status(402).json({
-        success: false,
-        message: "You are already following that user",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.unFollowUser = async (req, res) => {
-  try {
-    const name = req.params.name; // The name of the user to follow
-    const { id } = req.body; // My user ID
-
-    const myUser = await userModel.findById(id);
-    const thatUser = await userModel.findOne({ username: name });
-
-    if (!myUser || !thatUser) {
       return res
-        .status(404)
-        .json({ success: false, message: "No user exists!" });
-    }
+        .status(200)
+        .json({ success: true, message: "Followed User!", fromUser, toUser });
+    } else if (fromUser.following.includes(toUser._id)) {
+      fromUser.following.pull(toUser._id);
+      toUser.followers.pull(fromUser._id);
 
-    // Check if the user is already following the other user by comparing IDs
-    if (myUser.following.includes(thatUser._id)) {
-      myUser.following.pull(thatUser._id); // Add the other user's ID to my following list
-      thatUser.followers.pull(myUser._id); // Add my user ID to the other user's followers list
+      await fromUser.save();
+      await toUser.save();
 
-      await myUser.save(); // Save the updated myUser document
-      await thatUser.save(); // Save the updated thatUser document
-
-      return res.status(200).json({ success: true, myUser, thatUser });
+      return res
+        .status(200)
+        .json({ success: true, message: "Unfollowed User", fromUser, toUser });
     } else {
       return res.status(402).json({
         success: false,
-        message: "Som error....",
+        message: "Some Error",
       });
     }
   } catch (error) {
@@ -257,18 +250,18 @@ exports.unFollowUser = async (req, res) => {
 
 exports.getCurrentUser = async (req, res) => {
   try {
-    const current = req.params.current;
+    const userId = req.cookies?.userId;
+    console.log(req.cookies);
 
-    const currentUser = await userModel.findById(current);
+    if (!userId) return res.status(401).json({ message: "Not authenticated" });
 
-    if (!currentUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No user exists! !!" });
-    }
-    return res.status(200).json({ success: true, currentUser });
+    const user = await userModel.findById(userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.status(200).json({ success: true, user });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Error in getCurrentUser:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -306,6 +299,91 @@ exports.getFollowingList = async (req, res) => {
         .json({ success: false, message: "No list exists! !!" });
     }
     return res.status(200).json({ success: true, following: list.following });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.updateUserDetails = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { bio } = req.body;
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      { bio },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Bio updated successfully", user: updatedUser });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+exports.patchUserDetails = async (req, res) => {
+  try {
+    const { username, bio, shortBio, userId } = req.body;
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      {
+        $set: { username, bio, shortBio },
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "User details updated successfully",
+      user: updatedUser,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.likeByBlogId = async (req, res) => {
+  try {
+    const { userId, blogId } = req.body;
+
+    const user = await userModel.findById(userId);
+    const blog = await blogModel.findById(blogId);
+
+    if (!user || !blog) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No user / blog exists!" });
+    }
+
+    if (!user.blogsLiked.includes(blogId)) {
+      user.blogsLiked.push(blogId);
+      blog.likes.push(userId);
+      await user.save();
+      await blog.save();
+      return res
+        .status(200)
+        .json({ success: true, message: "liked blog", user, blog });
+    } else if (user.blogsLiked.includes(blogId)) {
+      user.blogsLiked.pull(blogId);
+      blog.likes.pull(userId);
+
+      await user.save();
+      await blog.save();
+      return res
+        .status(200)
+        .json({ success: true, message: "removed like", user, blog });
+    }
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }

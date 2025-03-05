@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -10,12 +10,13 @@ import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import Header1 from "src/components/Header1";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+axios.defaults.withCredentials = true;
 
 const CreateBlog = () => {
-  const id = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [updatedHTML, setUpdatedHTML] = useState("");
+  const [userId, setUserId] = useState("");
 
   const firebaseConfig = {
     apiKey: process.env.REACT_APP_API_KEY,
@@ -24,13 +25,25 @@ const CreateBlog = () => {
     storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
     messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
     appId: process.env.REACT_APP_API_ID,
-    measurementId: process.env.REACT_APP_MEASUREMENT_ID, // Fix this line
+    measurementId: process.env.REACT_APP_MEASUREMENT_ID,
   };
 
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
 
-  // Function to upload image to Firebase Storage
+  const fetchCurrentUser = async () => {
+    const { data } = await axios.get(`${baseAPIUrl}/user/current`, {
+      withCredentials: true,
+    });
+
+    if (data?.success) {
+      setUserId(data?.user?._id);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   const editor = useEditor({
     extensions: [StarterKit, Image],
@@ -78,7 +91,7 @@ const CreateBlog = () => {
 
     try {
       const { data } = await axios.post(`${baseAPIUrl}/blog/create`, {
-        user: id,
+        user: userId,
         title: title,
         description: updatedHTML, // Send HTML content
         image:

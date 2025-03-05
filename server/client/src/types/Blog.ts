@@ -9,7 +9,7 @@ export interface Comment {
 }
 
 export interface Blog {
-  _id: string;
+  _id: any;
   title: string;
   description: any;
   image: string;
