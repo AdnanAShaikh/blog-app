@@ -5,12 +5,14 @@ const {
   loginController,
   followUser,
   getUserById,
-  getCurrentUser,
   unFollowUser,
   getUserByName,
   getFollowersList,
   getFollowingList,
   googleLoginController,
+  patchUserDetails,
+  getCurrentUser,
+  likeByBlogId,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -28,16 +30,22 @@ router.post("/login", loginController);
 //google login
 router.post("/google/login", googleLoginController);
 
+//get current user details
+router.get("/current", getCurrentUser);
+
 // ------------------------------------------------------------------------
 // ----- Dynamic Routes -----
+//get user by id
+router.get("/:id", getUserById);
+
+//PATCH User Details
+router.patch("/patch", patchUserDetails);
+
+//get user by @
+router.get("/name/:usernameAt", getUserByName);
+
 //follow by name
-router.post("/follow/:name", followUser);
-
-//unfollow
-router.post("/unfollow/:name", unFollowUser);
-
-//get current user details
-router.get("/current/:current", getCurrentUser);
+router.post("/follow", followUser);
 
 //follow list
 router.get("/follower/list/:name", getFollowersList);
@@ -45,10 +53,7 @@ router.get("/follower/list/:name", getFollowersList);
 //following list
 router.get("/following/list/:name", getFollowingList);
 
-//get user by name
-router.get("/name/:name", getUserByName);
-
-//get user by id
-router.get("/:id", getUserById);
+//Like by blogID
+router.post("/like/blog", likeByBlogId);
 
 module.exports = router;

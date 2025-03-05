@@ -1,10 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Blogs from "./pages/Blogs";
-import UserBlogs from "./pages/UserBlog";
 import CreateBlog from "./pages/CreateBlog";
-import BlogDetails from "./pages/BlogDetails";
 import AuthRoute from "./pages/AuthRoute";
-import Landing from "./components/Landing";
+import Landing from "./pages/Landing";
 import ViewBlog from "./pages/ViewBlog";
 import ViewUser from "./pages/ViewUser";
 import AllUsers from "./pages/AllUsers";
@@ -49,7 +47,7 @@ function App() {
 
         {/* this is view blog */}
         <Route
-          path="/blog/:id"
+          path="/blog/:blogId"
           element={
             <AuthRoute>
               <ViewBlog />
@@ -64,7 +62,7 @@ function App() {
         
         */}
         <Route
-          path="/user/:name"
+          path="/user/:usernameAt"
           element={
             <AuthRoute>
               <ViewUser />

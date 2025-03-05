@@ -16,10 +16,11 @@ db();
 const app = express();
 
 // middlewares
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
   })
 );
 app.use("/uploads", express.static("uploads"));

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Header1 from "../components/Header1";
-import BlogMain from "src/components/all-Blogs-Page-Components/BlogMain";
-import BlogSidebar from "src/components/all-Blogs-Page-Components/BlogSidebar";
+import BlogMain from "src/components/BlogMain";
+import BlogSidebar from "src/components/BlogSidebar";
 import { baseAPIUrl } from "../utils/baseAPIUrl";
 
 interface Blog {

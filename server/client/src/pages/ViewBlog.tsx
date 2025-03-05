@@ -11,24 +11,28 @@ import ResponseCard from "src/components/ResponseCard";
 import { Blog, Comment } from "src/types/Blog";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 import { Button, Menu, MenuItem } from "@mui/material";
+import { User } from "src/types/User";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 
 const ViewBlog = () => {
-  const [blog, setBlog] = useState<Blog | null>(null);
-  const { id } = useParams<{ id: string }>();
+  const { blogId } = useParams<{ blogId: string }>();
+  const [blog, setBlog] = useState<Blog>();
   const [comment, setComment] = useState<string>("");
   const [isAuthor, setIsAuthor] = useState(false);
-  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-  const [value, setValue] = React.useState("1");
+
+  const [currentUserData, setCurrentUserData] = useState<User>();
+  const [isUser, setIsUser] = useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const open1 = Boolean(anchorEl1);
+
   // Get blog details
-  const getBlogDetail = async () => {
+  const fetchBlog = async () => {
     try {
-      const { data } = await axios.get(`${baseAPIUrl}/blog/${id}`);
+      const { data } = await axios.get(`${baseAPIUrl}/blog/${blogId}`);
       if (data?.success) {
         console.log(data);
         setBlog(data.blog);
@@ -38,28 +42,64 @@ const ViewBlog = () => {
     }
   };
 
+  const fetchCurrentUser = async () => {
+    try {
+      const { data } = await axios.get(`${baseAPIUrl}/user/current`, {
+        withCredentials: true,
+      });
+      if (data?.success) {
+        console.log("User:", data);
+        setCurrentUserData(data?.user);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
   useEffect(() => {
-    getBlogDetail();
+    fetchCurrentUser();
+    fetchBlog();
   }, []);
 
   useEffect(() => {
     if (blog) {
-      if (blog.user._id === userId) {
+      if (blog.user._id === currentUserData?._id) {
         setIsAuthor(true);
       } else {
         setIsAuthor(false);
       }
     }
-  }, [blog, userId]);
+  }, [blog, currentUserData]);
+
+  const handleFollow = async () => {
+    try {
+      const { data } = await axios.post(`${baseAPIUrl}/user/follow`, {
+        toUserId: blog?.user?._id,
+        fromUserId: currentUserData?._id,
+      });
+      if (data?.success) {
+        const audio = new Audio("/sounds/mixkit-message-pop-alert-2354.mp3"); // Path to your sound file
+        audio.play();
+        setCurrentUserData(data?.myUser);
+        fetchBlog();
+        fetchCurrentUser();
+      }
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
 
   const addComment = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (comment !== "") {
-        const { data } = await axios.post(`${baseAPIUrl}/blog/${id}/comment`, {
-          postedById: userId,
-          text: comment,
-        });
+        const { data } = await axios.post(
+          `${baseAPIUrl}/blog/${blogId}/comment`,
+          {
+            postedById: currentUserData?._id,
+            text: comment,
+          }
+        );
         if (data?.success) {
           setComment(""); // Clear the comment input after submitting
 
@@ -85,7 +125,7 @@ const ViewBlog = () => {
   const handleDelete = async () => {
     try {
       const { data } = await axios.delete(
-        `https://blog-app-2-5s8y.onrender.com/api/v1/blog/delete-blog/${id}`
+        `https://blog-app-2-5s8y.onrender.com/api/v1/blog/delete-blog/${blogId}`
       );
       if (data?.success) {
         window.location.reload();
@@ -145,11 +185,36 @@ const ViewBlog = () => {
           <div className="bg-gray-100 h-px"></div>
           <div className="flex justify-between px-4 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <ThumbUpOffAltIcon /> 12.9k
+              <div>
+                <span className="flex items-center gap-1">
+                  <p
+                    className="cursor-pointer"
+                    onClick={async () => {
+                      const { data } = await axios.post(
+                        `${baseAPIUrl}/user/like/blog`,
+                        {
+                          blogId: blogId,
+                          userId: currentUserData?._id,
+                        }
+                      );
+                      if (data?.success) {
+                        fetchCurrentUser();
+                        fetchBlog();
+                      }
+                    }}
+                  >
+                    {" "}
+                    {!currentUserData?.blogsLiked?.includes(blogId) ? (
+                      <ThumbUpOffAltIcon />
+                    ) : (
+                      <ThumbUpIcon className="text-green-700" />
+                    )}
+                  </p>{" "}
+                  <p>{blog?.likes.length}</p>
+                </span>
               </div>
               <div className="flex items-center gap-1">
-                <ModeCommentOutlinedIcon /> 27
+                <ModeCommentOutlinedIcon /> {blog?.comments?.length}
               </div>
             </div>
             <div>
@@ -193,7 +258,7 @@ const ViewBlog = () => {
                   "aria-labelledby": "basic-button",
                 }}
               >
-                {blog?.user._id === userId && (
+                {blog?.user._id === currentUserData?._id && (
                   <MenuItem
                     sx={{
                       color: "#6b6b6b",
@@ -207,7 +272,7 @@ const ViewBlog = () => {
                     <div
                       className="flex items-center gap-2"
                       onClick={() => {
-                        navigate(`/edit/${blog._id}`);
+                        navigate(`/edit/${blog?._id}`);
                       }}
                     >
                       <p>Edit</p>
@@ -251,11 +316,36 @@ const ViewBlog = () => {
         <div className="w-1/2 mx-auto mt-20">
           <div className="flex justify-between px-4 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <ThumbUpOffAltIcon /> 12.9k
+              <div>
+                <span className="flex items-center gap-1">
+                  <p
+                    className="cursor-pointer"
+                    onClick={async () => {
+                      const { data } = await axios.post(
+                        `${baseAPIUrl}/user/like/blog`,
+                        {
+                          blogId: blogId,
+                          userId: currentUserData?._id,
+                        }
+                      );
+                      if (data?.success) {
+                        fetchCurrentUser();
+                        fetchBlog();
+                      }
+                    }}
+                  >
+                    {" "}
+                    {!currentUserData?.blogsLiked?.includes(blogId) ? (
+                      <ThumbUpOffAltIcon />
+                    ) : (
+                      <ThumbUpIcon className="text-green-700" />
+                    )}
+                  </p>{" "}
+                  <p>{blog?.likes.length}</p>
+                </span>
               </div>
               <div className="flex items-center gap-1">
-                <ModeCommentOutlinedIcon /> 27
+                <ModeCommentOutlinedIcon /> {blog?.comments?.length}
               </div>
             </div>
             <div className="">
@@ -299,7 +389,7 @@ const ViewBlog = () => {
                   "aria-labelledby": "basic-button",
                 }}
               >
-                {blog?.user._id === userId && (
+                {blog?.user._id === currentUserData?._id && (
                   <MenuItem
                     sx={{
                       color: "#6b6b6b",
@@ -313,7 +403,7 @@ const ViewBlog = () => {
                     <div
                       className="flex items-center gap-2"
                       onClick={() => {
-                        navigate(`/edit/${blog._id}`);
+                        navigate(`/edit/${blog?._id}`);
                       }}
                     >
                       <p>Edit</p>
@@ -361,16 +451,39 @@ const ViewBlog = () => {
                 Written by {blog?.user?.username}
               </p>
               <div className="flex gap-3 items-center">
-                <p>{blog?.user.followers.length} Followers</p>
+                <p
+                  className="hover:text-slate-700 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/${blog?.user?.usernameAt}/followers`);
+                  }}
+                >
+                  {blog?.user.followers.length} Followers
+                </p>
                 <p>{blog?.user.following.length} Following</p>
               </div>
             </div>
           </div>
 
           <div>
-            <button className="px-5 py-2 bg-black text-white rounded-3xl">
-              Follow
-            </button>
+            {!currentUserData?.following?.includes(blog?.user?._id) ? (
+              <button
+                onClick={() => {
+                  handleFollow();
+                }}
+                className="px-5 py-2 bg-green-700 text-white rounded-3xl"
+              >
+                Follow
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  handleFollow();
+                }}
+                className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
+              >
+                Following
+              </button>
+            )}
           </div>
         </div>
 

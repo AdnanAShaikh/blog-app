@@ -9,10 +9,10 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "./",
-    "paths": {
-      "src/*": ["src/*"] // Alias for imports starting with "src/"
-    }
+    "baseUrl": "./"
+    // "paths": {
+    //   "src/*": ["src/*"] // Alias for imports starting with "src/"
+    // }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

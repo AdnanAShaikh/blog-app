@@ -6,6 +6,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "username is required!"],
     },
+    usernameAt: {
+      type: String,
+      required: [true, "usernameAt is required!"],
+    },
+    image: {
+      type: String,
+    },
     email: {
       type: String,
       required: [true, "email is required"],
@@ -34,13 +41,18 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-
     bio: {
       type: String,
     },
-    image: {
+    shortBio: {
       type: String,
     },
+    blogsLiked: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "Blog",
+      },
+    ],
   },
   { timestamps: true }
 );
