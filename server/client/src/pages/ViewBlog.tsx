@@ -163,25 +163,35 @@ const ViewBlog = () => {
     <>
       <Header1 />
       <div className="w-full">
-        <div className="w-1/2  mx-auto text-3xl font-bold mt-10">
+        <div className="w-2/3  mx-auto text-4xl font-semibold mt-10">
           {blog?.title}
         </div>
-        <div className="w-1/2 mx-auto flex gap-3 mt-7">
+        <div className="w-2/3 mx-auto flex gap-3 mt-7">
           <div className="w-11 h-11 rounded-full overflow-hidden">
             <img
-              className="w-full h-full object-cover"
+              onClick={() => {
+                navigate(`/user/${blog?.user?.usernameAt}`);
+              }}
+              className="w-full h-full object-cover cursor-pointer hover:opacity-80"
               src={getCurrentUserImage(blog?.user)}
               alt="user"
             />
           </div>
           <div className="flex flex-col">
-            <p>{blog?.user?.username}</p>
+            <p
+              className=" cursor-pointer"
+              onClick={() => {
+                navigate(`/user/${blog?.user?.usernameAt}`);
+              }}
+            >
+              {blog?.user?.username}
+            </p>
             <p>{blogDate}</p>
           </div>
         </div>
 
         {/* applause section */}
-        <div className="w-1/2 mx-auto mt-7">
+        <div className="w-2/3 mx-auto mt-7">
           <div className="bg-gray-100 h-px"></div>
           <div className="flex justify-between px-4 py-5">
             <div className="flex items-center gap-3">
@@ -305,7 +315,7 @@ const ViewBlog = () => {
           </div>
           <div className="bg-gray-100 h-px"></div>
         </div>
-        <div className="w-1/2 mx-auto mt-10 text-xl">
+        <div className="w-2/3 mx-auto mt-10 text-xl">
           <div dangerouslySetInnerHTML={{ __html: blog?.description }} />
         </div>
 
@@ -313,7 +323,7 @@ const ViewBlog = () => {
         <div></div>
 
         {/* applause section again */}
-        <div className="w-1/2 mx-auto mt-20">
+        <div className="w-2/3 mx-auto mt-20">
           <div className="flex justify-between px-4 py-5">
             <div className="flex items-center gap-3">
               <div>
@@ -437,18 +447,29 @@ const ViewBlog = () => {
         </div>
 
         {/* Written By Section */}
-        <div className="w-1/2 mx-auto flex justify-between items-center gap-3 my-10">
+        <div className="w-2/3 mx-auto flex justify-between items-center gap-3 my-10">
           <div className="flex gap-3">
             <div className="w-11 h-11 rounded-full overflow-hidden">
               <img
-                className="w-full h-full object-cover"
+                onClick={() => {
+                  navigate(`/user/${blog?.user?.usernameAt}`);
+                }}
+                className="w-full h-full object-cover cursor-pointer hover:opacity-80"
                 src={getCurrentUserImage(blog?.user)}
                 alt="user"
               />
             </div>
             <div className="flex flex-col">
               <p className="text-xl text-bold">
-                Written by {blog?.user?.username}
+                Written by{" "}
+                <span
+                  className="hover:underline cursor-pointer"
+                  onClick={() => {
+                    navigate(`/user/${blog?.user?.usernameAt}`);
+                  }}
+                >
+                  {blog?.user?.username}
+                </span>
               </p>
               <div className="flex gap-3 items-center">
                 <p
@@ -459,7 +480,14 @@ const ViewBlog = () => {
                 >
                   {blog?.user.followers.length} Followers
                 </p>
-                <p>{blog?.user.following.length} Following</p>
+                <p
+                  className="hover:text-slate-700 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/${blog?.user?.usernameAt}/following`);
+                  }}
+                >
+                  {blog?.user.following.length} Following
+                </p>
               </div>
             </div>
           </div>
@@ -470,7 +498,7 @@ const ViewBlog = () => {
                 onClick={() => {
                   handleFollow();
                 }}
-                className="px-5 py-2 bg-green-700 text-white rounded-3xl"
+                className="px-5 py-2 bg-green-700 text-white rounded-3xl hover:opacity-80"
               >
                 Follow
               </button>
@@ -490,7 +518,7 @@ const ViewBlog = () => {
         <div className="bg-gray-100 h-px"></div>
 
         {/* Responses Section */}
-        <div className="w-1/2 mx-auto mt-10">
+        <div className="w-2/3 mx-auto mt-10">
           <p className="text-3xl font-bold">Responses</p>
           <form
             onSubmit={(e) => {

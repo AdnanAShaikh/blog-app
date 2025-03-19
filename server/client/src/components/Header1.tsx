@@ -234,7 +234,7 @@ const Header1 = () => {
           </div>
         </div>
       </div>
-      <div className="w-full h-px -translate-y-2 bg-slate-200"></div>
+      <div className="w-full h-px bg-slate-200"></div>
     </>
   );
 };

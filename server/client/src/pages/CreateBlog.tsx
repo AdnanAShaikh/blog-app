@@ -10,6 +10,7 @@ import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import Header1 from "src/components/Header1";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { TextField } from "@mui/material";
 axios.defaults.withCredentials = true;
 
 const CreateBlog = () => {
@@ -121,14 +122,26 @@ const CreateBlog = () => {
       <div className="w-full">
         <div className="mx-auto w-1/2 py-4">
           <div className="w-full">
-            <textarea
+            <TextField
               placeholder="Title"
-              className="w-full max-h-80 focus:outline-none text-5xl font-sans p-2 resize-none overflow-hidden "
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
+              sx={{
+                border: "none",
+              }}
+              multiline={true}
+              variant="standard"
             />
+            {/* <textarea
+              placeholder="Title"
+              className="w-full focus:outline-none text-5xl font-sans p-2 resize-none overflow-hidden "
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+              }}
+            /> */}
           </div>
           <div className=" w-full">
             <div className="p-4 rounded-lg">

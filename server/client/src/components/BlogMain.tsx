@@ -2,23 +2,15 @@ import React, { useState } from "react";
 import { SyncLoader } from "react-spinners";
 import BlogCard from "./BlogCard";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
-import { User } from "src/types/User";
+import { Blog } from "src/types/Blog";
 
-type BlogMainProps = {
-  blogs: any[];
+const BlogMain = ({
+  blogs,
+  isLoading,
+}: {
+  blogs: Blog[];
   isLoading: boolean;
-};
-
-type BlogCardProps = {
-  _id: string;
-  title: string;
-  description: string;
-  image: string;
-  user: User;
-  createdAt: string;
-};
-
-const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
+}) => {
   const isLoggedIn = Boolean(localStorage.getItem("userId"));
 
   return (
@@ -30,9 +22,8 @@ const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
         {isLoggedIn && (
           <>
             <div className="">
-              {/* <Button>Click me please</Button> */}
-              {blogs.length > 0 ? (
-                blogs.map((blog: BlogCardProps) => (
+              {blogs?.length > 0 ? (
+                blogs?.map((blog: Blog) => (
                   <div key={blog._id} className="mb-3">
                     <BlogCard
                       id={blog._id}
@@ -43,6 +34,8 @@ const BlogMain: React.FC<BlogMainProps> = ({ blogs, isLoading }) => {
                       username={blog?.user?.username}
                       userImage={getCurrentUserImage(blog?.user)}
                       usernameAt={blog?.user?.usernameAt}
+                      likes={blog?.likes}
+                      comments={blog?.comments}
                     />
                   </div>
                 ))
