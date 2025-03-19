@@ -128,7 +128,7 @@ exports.getBlogByIdController = async (req, res) => {
 
     const blog = await blogModel
       .findById(id)
-      .populate("user", "username image followers following"); // Populates only 'username' and 'image' fields from user
+      .populate("user", "username usernameAt image followers following"); // Populates only 'username' and 'image' fields from user
 
     if (!blog) {
       return res.status(404).json({ message: "Not FOund blog  !!" });

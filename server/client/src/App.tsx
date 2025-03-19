@@ -6,9 +6,9 @@ import Landing from "./pages/Landing";
 import ViewBlog from "./pages/ViewBlog";
 import ViewUser from "./pages/ViewUser";
 import AllUsers from "./pages/AllUsers";
-import FollowerList from "./pages/FollowerList";
-import FollowingList from "./pages/FollowingList";
 import EditBlogScreen from "./pages/EditBlogScreen";
+import ViewFollowersList from "./pages/ViewFollowersList";
+import ViewFollowingList from "./pages/ViewFollowingList";
 
 function App() {
   const isLogin = localStorage.getItem("userId");
@@ -70,16 +70,8 @@ function App() {
           }
         />
 
-        {/* follower/ following */}
-        <Route path="/:name/followers" element={<FollowerList />} />
-        <Route
-          path="/:name/following"
-          element={
-            <AuthRoute>
-              <FollowingList />
-            </AuthRoute>
-          }
-        />
+        <Route path="/:usernameAt/followers" element={<ViewFollowersList />} />
+        <Route path="/:usernameAt/following" element={<ViewFollowingList />} />
 
         <Route
           path="/user/all"

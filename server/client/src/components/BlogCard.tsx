@@ -18,6 +18,8 @@ type BlogCardProps = {
   id: string | number;
   userImage?: string;
   isUser?: boolean;
+  likes?: any;
+  comments?: any;
 };
 
 export default function BlogCard({
@@ -29,11 +31,13 @@ export default function BlogCard({
   time,
   id,
   userImage,
+  likes,
+  comments,
 }: BlogCardProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isUserProfilePage = location.pathname.startsWith("/user/"); //check if blog in /all or in viewUser.tsx
+  const isUserProfilePage = location.pathname.startsWith("/user/");
 
   const formatCreatedAt = (createdAt: string | Date): string => {
     const date = new Date(createdAt);
@@ -126,14 +130,14 @@ export default function BlogCard({
           <div className="flex mt-5 items-center justify-between">
             <div className="flex gap-5 items-center ">
               <span>{formatCreatedAt(time)} </span>
-              <Tooltip title="11.2k likes" arrow>
+              <Tooltip title={`${likes?.length} likes`} arrow>
                 <span className="flex items-center gap-2">
-                  <ThumbUpOffAltIcon /> <p>11.2k</p>{" "}
+                  <ThumbUpOffAltIcon /> <p>{likes?.length}</p>{" "}
                 </span>
               </Tooltip>
-              <Tooltip title="235 responses" arrow>
+              <Tooltip title={`${comments?.length} responses`} arrow>
                 <span className="flex items-center gap-2">
-                  <ModeCommentOutlinedIcon /> <p>235 </p>
+                  <ModeCommentOutlinedIcon /> <p>{comments?.length} </p>
                 </span>
               </Tooltip>
             </div>

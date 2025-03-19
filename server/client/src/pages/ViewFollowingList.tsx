@@ -7,7 +7,7 @@ import { User } from "src/types/User";
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 
-const ViewFollowersList = () => {
+const ViewFollowingList = () => {
   const { usernameAt } = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState<User>();
@@ -74,9 +74,8 @@ const ViewFollowersList = () => {
       if (data?.success) {
         const audio = new Audio("/sounds/mixkit-message-pop-alert-2354.mp3"); // Path to your sound file
         audio.play();
-        setCurrentUserData(data?.myUser);
-        fetchUser();
-        fetchCurrentUser();
+        await fetchCurrentUser();
+        await fetchUser();
       }
     } catch (error) {
       console.error("Error following user:", error);
@@ -115,16 +114,16 @@ const ViewFollowersList = () => {
       <Header1 />
       <div className="flex w-full min-h-screen  ">
         <div className="border-r-2 p-10 w-3/5">
-          <div className="px-40">
+          <div className="pl-40">
             <div className="flex flex-col">
               <p
                 className="font-medium text-4xl"
                 style={{ fontFamily: "Helvetica" }}
               >
-                {userData?.followers?.length ?? 0} Followers
+                {userData?.following?.length ?? 0} Following
               </p>
               <div className="flex flex-col gap-5 mt-10">
-                {userData?.followers.map((user: any) => (
+                {userData?.following.map((user: any) => (
                   <div
                     className={`flex gap-4 ${
                       userData?.shortBio !== "" ? "items-center" : ""
@@ -149,7 +148,7 @@ const ViewFollowersList = () => {
                       >
                         {user.username}
                       </span>
-                    </div>
+                    </div>{" "}
                     <div>
                       {!user?._id === currentUserData?._id ? (
                         !user?.following?.includes(currentUserData?._id) ? (
@@ -332,4 +331,4 @@ const ViewFollowersList = () => {
   );
 };
 
-export default ViewFollowersList;
+export default ViewFollowingList;

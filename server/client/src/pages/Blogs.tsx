@@ -5,20 +5,8 @@ import BlogMain from "src/components/BlogMain";
 import BlogSidebar from "src/components/BlogSidebar";
 import { baseAPIUrl } from "../utils/baseAPIUrl";
 
-interface Blog {
-  _id: string;
-  title: string;
-  description: string;
-  image: string;
-  user: {
-    username: string;
-    image: string;
-  };
-  createdAt: string;
-}
-
 const Blogs: React.FC = () => {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogs, setBlogs] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
 
   const getAllBlogs = async () => {

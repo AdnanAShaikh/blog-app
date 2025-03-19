@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Header1 from "src/components/Header1";
 import Tab from "@mui/material/Tab";
@@ -18,6 +18,7 @@ axios.defaults.withCredentials = true;
 
 const ViewUser: React.FC = () => {
   const { usernameAt } = useParams();
+  const navigate = useNavigate();
   const [userId, setUserId] = useState("");
   const [isUser, setIsUser] = useState(false);
   const [userData, setUserData] = useState<User | null>(null);
@@ -129,8 +130,6 @@ const ViewUser: React.FC = () => {
       console.error("Error following user:", error);
     }
   };
-
-  const weFollowHim = currentUserData?.following?.includes(userData?._id || "");
 
   const getStartedJSX = (
     <div className="bg-gray-100 mx-auto py-20 px-10 ">
@@ -325,7 +324,7 @@ const ViewUser: React.FC = () => {
                 </Box>
                 <TabPanel value="1">
                   <div>
-                    {userData?.blogs.map((item: any) => (
+                    {userData?.blogs?.map((item: any) => (
                       <div>
                         <BlogCard
                           id={item._id}
@@ -347,7 +346,24 @@ const ViewUser: React.FC = () => {
                       : TextFieldJSX}
                   </div>
                   <div className="bg-gray-100 mt-10 h-px"></div>
-                  <p className="text-green-700 mt-10">1 Following</p>
+                  <div className="flex items-center gap-3">
+                    <p
+                      onClick={() => {
+                        navigate(`/${userData?.usernameAt}/following`);
+                      }}
+                      className="text-green-700 cursor-pointer mt-10"
+                    >
+                      {userData?.following.length} Following
+                    </p>
+                    <p
+                      onClick={() => {
+                        navigate(`/${userData?.usernameAt}/followers`);
+                      }}
+                      className="text-green-700 cursor-pointer mt-10"
+                    >
+                      {userData?.followers.length} Followers
+                    </p>
+                  </div>
                 </TabPanel>
               </TabContext>
             </div>
@@ -364,7 +380,14 @@ const ViewUser: React.FC = () => {
                 />
               </div>
               <p className="font-medium">{userData?.username}</p>
-              <p>{userData?.followers?.length} Followers</p>
+              <p
+                className="cursor-pointer"
+                onClick={() => {
+                  navigate(`/${userData?.usernameAt}/followers`);
+                }}
+              >
+                {userData?.followers?.length} Followers
+              </p>
               <p>{userData?.shortBio || ""}</p>
               {isUser ? (
                 <button

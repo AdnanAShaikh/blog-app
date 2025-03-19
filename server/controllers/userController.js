@@ -170,7 +170,9 @@ exports.getUserByName = async (req, res) => {
   try {
     const { usernameAt } = req.params;
 
-    const user = await userModel.findOne({ usernameAt }).populate("blogs");
+    const user = await userModel
+      .findOne({ usernameAt })
+      .populate("blogs followers following");
 
     if (!user) {
       return res
@@ -265,68 +267,6 @@ exports.getCurrentUser = async (req, res) => {
   }
 };
 
-exports.getFollowersList = async (req, res) => {
-  try {
-    const name = req.params.name;
-    const list = await userModel
-      .findOne({ username: name })
-      .select("followers")
-      .populate("followers");
-
-    if (!list) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No list exists! !!" });
-    }
-    return res.status(200).json({ success: true, followers: list.followers });
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.getFollowingList = async (req, res) => {
-  try {
-    const name = req.params.name;
-
-    const list = await userModel
-      .findOne({ username: name })
-      .select("following")
-      .populate("following");
-
-    if (!list) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No list exists! !!" });
-    }
-    return res.status(200).json({ success: true, following: list.following });
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.updateUserDetails = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { bio } = req.body;
-
-    const updatedUser = await userModel.findByIdAndUpdate(
-      userId,
-      { bio },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Bio updated successfully", user: updatedUser });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 exports.patchUserDetails = async (req, res) => {
   try {
     const { username, bio, shortBio, userId } = req.body;
@@ -353,7 +293,7 @@ exports.patchUserDetails = async (req, res) => {
   }
 };
 
-exports.likeByBlogId = async (req, res) => {
+exports.likeController = async (req, res) => {
   try {
     const { userId, blogId } = req.body;
 
