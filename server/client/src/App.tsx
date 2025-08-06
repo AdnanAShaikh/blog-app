@@ -1,27 +1,54 @@
+// import { io } from "socket.io-client";
 import { Routes, Route } from "react-router-dom";
-import Blogs from "./pages/Blogs";
 import CreateBlog from "./pages/CreateBlog";
 import AuthRoute from "./pages/AuthRoute";
-import Landing from "./pages/Landing";
 import ViewBlog from "./pages/ViewBlog";
 import ViewUser from "./pages/ViewUser";
 import AllUsers from "./pages/AllUsers";
 import EditBlogScreen from "./pages/EditBlogScreen";
 import ViewFollowersList from "./pages/ViewFollowersList";
 import ViewFollowingList from "./pages/ViewFollowingList";
+import NotificationPage from "./pages/NotificationPage";
+import HomeRouter from "./components/HomeRouter";
 
 function App() {
-  const isLogin = localStorage.getItem("userId");
+  // const socket = io("http://localhost:3000", {
+  //   withCredentials: true,
+  // });
+
+  // useEffect(() => {
+  //   const userId = localStorage.getItem("userId"); // or from auth context
+  //   if (userId) {
+  //     socket.emit("register", userId);
+  //   }
+
+  //   socket.on("notification", (notif) => {
+  //     alert(notif.message); // or use toast/snackbar
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
+
   return (
     <>
       <Routes>
-        <Route path="/" element={isLogin ? <Blogs /> : <Landing />} />
+        <Route path="/" element={<HomeRouter />} />
 
         <Route
           path="/create"
           element={
             <AuthRoute>
               <CreateBlog />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/notification"
+          element={
+            <AuthRoute>
+              <NotificationPage />
             </AuthRoute>
           }
         />

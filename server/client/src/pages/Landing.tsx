@@ -11,16 +11,13 @@ import { baseAPIUrl } from "src/utils/baseAPIUrl";
 
 axios.defaults.withCredentials = true;
 const Landing = () => {
+  const dispatch = useDispatch();
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("user");
-  }, []);
   async function googleLogin() {
+    setIsLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -29,8 +26,6 @@ const Landing = () => {
       // Access user information
       console.log(user);
       console.log(user.displayName, user.email, user.photoURL, user.uid);
-
-      setIsLoading(true);
 
       const { data } = await axios.post(
         `${baseAPIUrl}/user/google/login`,
@@ -49,18 +44,13 @@ const Landing = () => {
           username: data?.user.username,
           usernameAt: data?.user.usernameAt,
         };
-        setIsLoading(false);
         dispatch(login());
-        localStorage.setItem("userId", data.user._id);
         localStorage.setItem("user", JSON.stringify(userData));
-
-        window.location.reload();
       }
     } catch (error) {
-      setIsLoading(false);
-
       console.error("Error signing in with Google:", error);
     }
+    setIsLoading(false);
   }
   return (
     <>
