@@ -3,7 +3,12 @@ import { login } from "../redux/authSlice";
 import axios from "axios";
 import { auth } from "../components/firebase";
 import { useDispatch } from "react-redux";
-import { GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
+import {
+  browserLocalPersistence,
+  GoogleAuthProvider,
+  setPersistence,
+  signInWithPopup,
+} from "@firebase/auth";
 import { SyncLoader } from "react-spinners";
 import GoogleIcon from "@mui/icons-material/Google";
 
@@ -19,6 +24,8 @@ const Landing = () => {
   async function googleLogin() {
     setIsLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
+
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -38,13 +45,13 @@ const Landing = () => {
         { withCredentials: true }
       );
       if (data?.success) {
+        dispatch(login());
         console.log(data);
         const userData = {
           image: data?.user.image,
           username: data?.user.username,
           usernameAt: data?.user.usernameAt,
         };
-        dispatch(login());
         localStorage.setItem("user", JSON.stringify(userData));
       }
     } catch (error) {

@@ -14,6 +14,7 @@ import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneR
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 import { Modal, Typography, useMediaQuery } from "@mui/material";
+import { persistor } from "src/redux/store";
 
 const Header1 = () => {
   const location = useLocation();
@@ -37,6 +38,7 @@ const Header1 = () => {
     try {
       setIsLogoutModalOpen(false);
       dispatch(logout());
+      persistor.purge();
     } catch (error) {
       console.log(error);
     }
