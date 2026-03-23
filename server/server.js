@@ -40,8 +40,8 @@ app.use("/api/v1/user", userRoutes);
 const blogRoutes = require("./routes/blogRoutes");
 app.use("/api/v1/blog", blogRoutes);
 
-const commentRoutes = require("./routes/commentRoutes");
-app.use("/api/v1/comment", commentRoutes);
+// const commentRoutes = require("./routes/commentRoutes");
+// app.use("/api/v1/comment", commentRoutes);
 
 // Catch-all handler to serve the React app
 
