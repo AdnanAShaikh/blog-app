@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -10,18 +10,24 @@ import Face6 from "@mui/icons-material/Person";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import LogoutIcon from "@mui/icons-material/Logout";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
+import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
+import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
+import { Modal, Typography, useMediaQuery } from "@mui/material";
+import { persistor } from "src/redux/store";
 
 const Header1 = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const isLaptopScreen = useMediaQuery("(min-width:1024px)");
+  const isTabletScreen = useMediaQuery("(min-width:720px)");
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const createUrl = location.pathname === "/create";
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -31,45 +37,78 @@ const Header1 = () => {
 
   const handleLogout = async () => {
     try {
-      if (window.confirm("Do you want to Log Out? ")) {
-        dispatch(logout());
-        sessionStorage.removeItem("hasVisitedBefore");
-        localStorage.removeItem("userId");
-        window.location.reload();
-        toast.success("Logged Out Successfully");
-      } else {
-        alert("You chose to remained Logged in...");
-      }
+      setIsLogoutModalOpen(false);
+      dispatch(logout());
+      persistor.purge();
     } catch (error) {
       console.log(error);
     }
   };
   // get User Data
-  const user = JSON.parse(localStorage.getItem("user") || "");
-
-  const fetchUser = async () => {
-    const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
-    if (!hasVisitedBefore) {
-      toast.success(`Welcome back ${user?.username}`);
-      sessionStorage.setItem("hasVisitedBefore", "true");
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
     }
-  };
+  } catch (err) {
+    console.error("Error parsing user from localStorage", err);
+  }
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!user) {
+      dispatch(logout());
+    }
+  }, [user]);
 
   return (
     <>
-      <div className="flex justify-between items-center px-4 py-2">
+      {/* Logout Modal */}
+
+      <Modal
+        open={isLogoutModalOpen}
+        onClose={() => {
+          setIsLogoutModalOpen(false);
+        }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <div className="w-5/12 absolute top-20 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow">
+          <div className="p-5">
+            <Typography className="mt-" variant="h5" component="h2">
+              Are you sure you want to logout?
+            </Typography>
+            <div className="flex items-center justify-end gap-5">
+              <Button
+                sx={{ backgroundColor: "black", color: "white" }}
+                variant="text"
+                onClick={() => {
+                  setIsLogoutModalOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                sx={{ backgroundColor: "black", color: "white" }}
+                variant="contained"
+                onClick={handleLogout}
+              >
+                OK
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      <div className="flex justify-between px-10 items-center">
         {/* 1st section */}
-        <div className="flex items-center justify-end w-1/6 gap-5">
+        <div className="flex items-center justify-end gap-5">
           <h3
             className="font-extrabold hover:cursor-pointer tracking-tighter "
             onClick={() => {
               navigate("/");
             }}
-            style={{ fontFamily: "Times New York", fontSize: "30px" }}
+            style={{ fontFamily: "Times New York", fontSize: "35px" }}
           >
             Medium
           </h3>
@@ -92,10 +131,10 @@ const Header1 = () => {
         </div>
 
         {/* 2nd section */}
-        <div className="p-4 ">
+        <div className="">
           <div className="flex gap-3 items-center">
-            {!createUrl && (
-              <Link to="/create" className="mr-5">
+            {!createUrl && isTabletScreen && (
+              <Link to="/create" className="mr-4">
                 <p className="hover:cursor-pointer flex items-center gap-1">
                   <div className="flex items-center gap-1  ">
                     <p className="text-gray-600 hover:text-black">Write</p>
@@ -103,10 +142,15 @@ const Header1 = () => {
                 </p>
               </Link>
             )}
-
-            <p className="hover:cursor-pointer">
-              <NotificationsNoneOutlinedIcon className="text-gray-600 hover:text-black" />
-            </p>
+            <Link to="/notification">
+              <p className="hover:cursor-pointer">
+                {location.pathname === "/notification" ? (
+                  <NotificationsRoundedIcon />
+                ) : (
+                  <NotificationsNoneRoundedIcon />
+                )}
+              </p>
+            </Link>
             <div>
               <Button
                 id="basic-button"
@@ -140,7 +184,7 @@ const Header1 = () => {
                     },
                   },
                   "& .MuiMenu-paper": {
-                    width: "20rem",
+                    width: isTabletScreen ? "20rem" : "14rem",
                     paddingLeft: "1rem",
                     paddingRight: "2rem",
                     paddingTop: "1rem",
@@ -155,7 +199,7 @@ const Header1 = () => {
                   "aria-labelledby": "basic-button",
                 }}
               >
-                <div className="border-b-2">
+                <div className="border-b-1">
                   <MenuItem
                     sx={{
                       color: "#6b6b6b",
@@ -166,14 +210,36 @@ const Header1 = () => {
                     }}
                     onClick={() => {
                       navigate(`/user/${user?.usernameAt}`);
-                      handleClose();
                     }}
                     className="flex w-full"
                   >
-                    <div className="flex items-center gap-2" onClick={() => {}}>
+                    <div className="flex items-center gap-2">
                       <Face6 /> <p>Profile</p>
                     </div>
                   </MenuItem>
+                  {!isLaptopScreen && !isTabletScreen && (
+                    <MenuItem
+                      sx={{
+                        color: "#6b6b6b",
+                        "&:hover": {
+                          backgroundColor: "transparent", // Remove hover background
+                          color: "#000",
+                        },
+                      }}
+                      onClick={handleClose}
+                    >
+                      <Link to="/create" className="mr-4">
+                        <p className="hover:cursor-pointer flex items-center gap-1">
+                          <div className="flex items-center gap-1  ">
+                            <p className="text-gray-600 hover:text-black">
+                              Write
+                            </p>
+                          </div>
+                        </p>
+                      </Link>
+                    </MenuItem>
+                  )}
+
                   <MenuItem
                     sx={{
                       color: "#6b6b6b",
@@ -205,17 +271,10 @@ const Header1 = () => {
                 </div>
                 <MenuItem
                   style={{
-                    backgroundColor: "transparent", // Default background
+                    backgroundColor: "transparent",
                   }}
-                  // sx={{
-                  //   color: "#6b6b6b",
-                  //   "&:hover": {
-                  //     backgroundColor: "transparent", // Remove hover background
-                  //     color: "#000",
-                  //   },
-                  // }}
                   onClick={() => {
-                    handleLogout();
+                    setIsLogoutModalOpen(true);
                     handleClose();
                   }}
                 >

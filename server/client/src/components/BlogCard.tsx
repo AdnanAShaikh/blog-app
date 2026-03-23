@@ -1,6 +1,6 @@
 import { Button, Menu, MenuItem, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -37,6 +37,7 @@ export default function BlogCard({
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [currentUserData, setCurrentUserData] = useState<User>();
   const isUserProfilePage = location.pathname.startsWith("/user/");
 
   const formatCreatedAt = (createdAt: string | Date): string => {
@@ -51,8 +52,6 @@ export default function BlogCard({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const [currentUserData, setCurrentUserData] = useState<User>();
-  // const [isUser,setIsUser] = useState(false)
   const fetchCurrentUser = async () => {
     try {
       const { data } = await axios.get(`${baseAPIUrl}/user/current`, {
@@ -81,7 +80,7 @@ export default function BlogCard({
 
   return (
     <div
-      className="w-fit p-3 py-7 border-b-2 hover:cursor-pointer"
+      className="p-3 py-7 border-b-1 hover:cursor-pointer"
       onClick={() => {
         navigate(`/blog/${id}`);
       }}
@@ -116,27 +115,42 @@ export default function BlogCard({
       </div>
 
       {/* title and image */}
-      <div className="flex gap-10  ">
-        <div className="flex flex-col gap-3  " style={{ width: "464px" }}>
-          <h3
-            className="text-2xl font-bold hover:underline"
-            style={{ lineHeight: 1 }}
-          >
-            {title}
-          </h3>
+      <div className="flex flex-1 lg:gap-10">
+        <div className="flex flex-col w-full lg:gap-3  ">
+          <div className="flex gap-10 w-full">
+            <div className="flex flex-col flex-wrap w-4/5">
+              <h3
+                className="text-2xl max-sm:max-w-80 sm:max-w-[500px] font-bold hover:underline"
+                style={{ lineHeight: 1 }}
+              >
+                {title}
+              </h3>
+              <div
+                className="mt-2"
+                dangerouslySetInnerHTML={{ __html: description.slice(0, 20) }}
+              />
+            </div>
 
-          <div dangerouslySetInnerHTML={{ __html: description.slice(0, 20) }} />
+            {/* image */}
+            <div className="flex max-md:min-w-20 md:min-w-36 w-1/5">
+              <img
+                className=" w-full h-full object-cover"
+                src={image}
+                alt="blog img"
+              />
+            </div>
+          </div>
 
           <div className="flex mt-5 items-center justify-between">
-            <div className="flex gap-5 items-center ">
+            <div className="flex items-center gap-4 ">
               <span>{formatCreatedAt(time)} </span>
               <Tooltip title={`${likes?.length} likes`} arrow>
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1">
                   <ThumbUpOffAltIcon /> <p>{likes?.length}</p>{" "}
                 </span>
               </Tooltip>
               <Tooltip title={`${comments?.length} responses`} arrow>
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1">
                   <ModeCommentOutlinedIcon /> <p>{comments?.length} </p>
                 </span>
               </Tooltip>
@@ -153,13 +167,15 @@ export default function BlogCard({
                   color: "black",
                   boxShadow: "none",
                 },
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClick(e);
+                padding: 0,
+                justifyContent: "end",
               }}
             >
               <MoreHorizIcon
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  handleClick(e);
+                }}
                 className="hover:cursor-pointer text-gray-500 hover:text-black"
                 fontSize="large"
               />
@@ -248,15 +264,6 @@ export default function BlogCard({
               )}
             </Menu>
           </div>
-        </div>
-
-        {/* image */}
-        <div className="w-40 h-28 ml-10 overflow-hidden">
-          <img
-            className=" w-full h-full object-cover"
-            src={image}
-            alt="blog img"
-          />
         </div>
       </div>
     </div>

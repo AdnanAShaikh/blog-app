@@ -1,33 +1,38 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
 import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import Header1 from "src/components/Header1";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
-import ResponseCard from "src/components/ResponseCard";
-import { Blog, Comment } from "src/types/Blog";
+import { Blog } from "src/types/Blog";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 import { Button, Menu, MenuItem } from "@mui/material";
 import { User } from "src/types/User";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import CommentSection from "src/components/CommentSection";
 
 const ViewBlog = () => {
   const { blogId } = useParams<{ blogId: string }>();
   const [blog, setBlog] = useState<Blog>();
   const [comment, setComment] = useState<string>("");
   const [isAuthor, setIsAuthor] = useState(false);
+  const audio = new Audio("/sounds/mixkit-message-pop-alert-2354.mp3");
   const navigate = useNavigate();
 
   const [currentUserData, setCurrentUserData] = useState<User>();
-  const [isUser, setIsUser] = useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [anchorEl1, setAnchorEl1] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const open1 = Boolean(anchorEl1);
+
+  useEffect(() => {
+    fetchBlog();
+    fetchCurrentUser();
+  }, []);
 
   // Get blog details
   const fetchBlog = async () => {
@@ -57,17 +62,8 @@ const ViewBlog = () => {
   };
 
   useEffect(() => {
-    fetchCurrentUser();
-    fetchBlog();
-  }, []);
-
-  useEffect(() => {
-    if (blog) {
-      if (blog.user._id === currentUserData?._id) {
-        setIsAuthor(true);
-      } else {
-        setIsAuthor(false);
-      }
+    if (blog && currentUserData) {
+      setIsAuthor(blog.user._id.toString() === currentUserData._id.toString());
     }
   }, [blog, currentUserData]);
 
@@ -78,7 +74,6 @@ const ViewBlog = () => {
         fromUserId: currentUserData?._id,
       });
       if (data?.success) {
-        const audio = new Audio("/sounds/mixkit-message-pop-alert-2354.mp3"); // Path to your sound file
         audio.play();
         setCurrentUserData(data?.myUser);
         fetchBlog();
@@ -159,6 +154,27 @@ const ViewBlog = () => {
     setAnchorEl1(event.currentTarget);
   };
 
+  const followJSX = (
+    <button
+      onClick={() => {
+        handleFollow();
+      }}
+      className="px-5 py-2 bg-green-700 text-white rounded-3xl hover:opacity-80"
+    >
+      Follow
+    </button>
+  );
+
+  const followingJSX = (
+    <button
+      onClick={() => {
+        handleFollow();
+      }}
+      className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
+    >
+      Following
+    </button>
+  );
   return (
     <>
       <Header1 />
@@ -316,7 +332,7 @@ const ViewBlog = () => {
           <div className="bg-gray-100 h-px"></div>
         </div>
         <div className="w-2/3 mx-auto mt-10 text-xl">
-          <div dangerouslySetInnerHTML={{ __html: blog?.description }} />
+          <div dangerouslySetInnerHTML={{ __html: blog?.description || "" }} />
         </div>
 
         {/* tag section TO BE SOON */}
@@ -331,6 +347,8 @@ const ViewBlog = () => {
                   <p
                     className="cursor-pointer"
                     onClick={async () => {
+                      console.log(baseAPIUrl); // log this before axios.post
+
                       const { data } = await axios.post(
                         `${baseAPIUrl}/user/like/blog`,
                         {
@@ -491,27 +509,14 @@ const ViewBlog = () => {
               </div>
             </div>
           </div>
-
           <div>
-            {!currentUserData?.following?.includes(blog?.user?._id) ? (
-              <button
-                onClick={() => {
-                  handleFollow();
-                }}
-                className="px-5 py-2 bg-green-700 text-white rounded-3xl hover:opacity-80"
-              >
-                Follow
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  handleFollow();
-                }}
-                className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
-              >
-                Following
-              </button>
-            )}
+            {!isAuthor
+              ? currentUserData &&
+                blog &&
+                currentUserData?.following?.includes(blog?.user?._id)
+                ? followingJSX
+                : followJSX
+              : null}
           </div>
         </div>
 
@@ -556,7 +561,9 @@ const ViewBlog = () => {
           </form>
 
           {/* Responses Array Section  */}
-          <div>
+          {/* <CommentSection blogId={blog?._id} /> */}
+
+          {/* <div>
             {blog?.comments.map((comment: Comment) => {
               return (
                 <>
@@ -566,11 +573,11 @@ const ViewBlog = () => {
                     text={comment.text}
                     date={comment.date}
                     isAuthor={isAuthor}
-                  />
+                  /> 
                 </>
               );
             })}
-          </div>
+          </div> */}
         </div>
       </div>
     </>

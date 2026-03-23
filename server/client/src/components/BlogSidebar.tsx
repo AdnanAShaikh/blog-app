@@ -2,7 +2,7 @@ import React from "react";
 
 const BlogSidebar = () => {
   return (
-    <div className="flex flex-col gap-3 p-7" style={{ maxWidth: "360px" }}>
+    <div className="flex flex-col gap-3 p-12" style={{ maxWidth: "360px" }}>
       <p className="font-bold">Staff Picks</p>
       <div className="flex flex-col gap-1">
         <p>In Picture Palace by Loren Kantor</p>

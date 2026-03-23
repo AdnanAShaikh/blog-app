@@ -1,13 +1,15 @@
 import React, { ReactNode, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
 
 interface AuthRouteProps {
   children: ReactNode;
 }
 
 const AuthRoute: React.FC<AuthRouteProps> = ({ children }) => {
-  const isLoggedIn = !!localStorage.getItem("userId");
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLogin);
 
   useEffect(() => {
     if (!isLoggedIn) {

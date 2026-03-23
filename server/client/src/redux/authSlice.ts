@@ -17,6 +17,8 @@ export const authSlice = createSlice({
     },
     logout: (state) => {
       state.isLogin = false;
+      sessionStorage.clear();
+      localStorage.clear();
     },
   },
 });

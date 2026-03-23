@@ -8,12 +8,13 @@ import { baseAPIUrl } from "src/utils/baseAPIUrl";
 import { getCurrentUserImage } from "src/utils/currentUserImage";
 
 const ViewFollowersList = () => {
-  const { usernameAt } = useParams();
   const navigate = useNavigate();
+  const { usernameAt } = useParams();
+  const localUser = JSON.parse(localStorage.getItem("user") || "");
+  const localUsernameAt = localUser.usernameAt;
   const [userData, setUserData] = useState<User>();
   const [currentUserData, setCurrentUserData] = useState<User | null>(null);
-  const [userId, setUserId] = useState("");
-  const [isUser, setIsUser] = useState(false);
+  const [isUser, setIsUser] = useState<Boolean | null>(null);
   const [isEditProfileModalVisible, setIsEditProfileModalVisible] =
     useState(false);
   const [formData, setFormData] = useState({
@@ -31,7 +32,6 @@ const ViewFollowersList = () => {
       if (data?.success) {
         console.log("User:", data);
         setCurrentUserData(data?.user);
-        setUserId(data?.user?._id);
       }
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -43,7 +43,7 @@ const ViewFollowersList = () => {
     if (data?.success) {
       console.log(data);
       setUserData(data?.user);
-      setIsUser(userId === data?.user?._id);
+      setIsUser(localUsernameAt === data?.user?.usernameAt);
       setFormData({
         shortBio: data?.user?.shortBio,
         username: data?.user.username,
@@ -56,10 +56,10 @@ const ViewFollowersList = () => {
   };
 
   useEffect(() => {
-    if (userId) {
+    if (usernameAt) {
       fetchUser();
     }
-  }, [userId]);
+  }, [usernameAt]);
 
   useEffect(() => {
     fetchCurrentUser();
@@ -203,39 +203,41 @@ const ViewFollowersList = () => {
               {userData?.username}
             </p>
             <p>{userData?.shortBio || ""}</p>
-            {isUser ? (
-              <button
-                onClick={() => {
-                  setIsEditProfileModalVisible(true);
-                }}
-                className="mt-5 text-green-700 hover:text-green-800 "
-              >
-                {" "}
-                Edit Profile
-              </button>
-            ) : (
-              <div>
-                {!currentUserData?.following?.includes(userData?._id) ? (
-                  <button
-                    onClick={() => {
-                      handleFollow(userData?._id);
-                    }}
-                    className="px-5 py-2 bg-green-700 text-white rounded-3xl"
-                  >
-                    Follow
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      handleFollow(userData?._id);
-                    }}
-                    className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
-                  >
-                    Following
-                  </button>
-                )}
-              </div>
-            )}
+            {currentUserData ? (
+              isUser ? (
+                <button
+                  onClick={() => {
+                    setIsEditProfileModalVisible(true);
+                  }}
+                  className="mt-5 text-green-700 hover:text-green-800 "
+                >
+                  {" "}
+                  Edit Profile
+                </button>
+              ) : (
+                <div>
+                  {!currentUserData?.following?.includes(userData?._id) ? (
+                    <button
+                      onClick={() => {
+                        handleFollow(userData?._id);
+                      }}
+                      className="px-5 py-2 bg-green-700 text-white rounded-3xl"
+                    >
+                      Follow
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        handleFollow(userData?._id);
+                      }}
+                      className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
+                    >
+                      Following
+                    </button>
+                  )}
+                </div>
+              )
+            ) : null}
           </div>
         </div>
       </div>
@@ -316,7 +318,7 @@ const ViewFollowersList = () => {
                   await axios.patch(`${baseAPIUrl}/user/patch`, {
                     username: formData?.username,
                     shortBio: formData?.shortBio,
-                    userId: userId,
+                    userId: currentUserData?._id,
                   });
                   setIsEditProfileModalVisible(false);
                 }}

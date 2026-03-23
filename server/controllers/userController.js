@@ -10,9 +10,10 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await userModel.find({});
     return res.status(200).json({ success: true, users });
-  } catch (err) {
-    console.log("Error:", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -49,9 +50,10 @@ exports.registerController = async (req, res) => {
       message: "Success new user created !!",
       user: user,
     });
-  } catch (err) {
-    console.log("Error: ", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -121,7 +123,6 @@ exports.googleLoginController = async (req, res) => {
       userId: user._id,
     });
   } catch (error) {
-    console.error("Error in googleLoginController:", error);
     return res
       .status(500)
       .json({ message: "Internal Server Error", error: error.message });
@@ -160,9 +161,10 @@ exports.loginController = async (req, res) => {
     return res
       .status(200)
       .json({ success: true, message: "Login successful", user });
-  } catch (err) {
-    console.log("Error: ", err);
-    return res.status(500).json({ message: "Internal Server Error" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -182,7 +184,9 @@ exports.getUserByName = async (req, res) => {
     console.log(user);
     return res.status(200).json({ success: true, user });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -201,14 +205,15 @@ exports.getUserById = async (req, res) => {
 
     return res.status(200).json({ success: true, user });
   } catch (error) {
-    console.error("Error fetching user:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
 exports.followUser = async (req, res) => {
   try {
-    const { fromUserId, toUserId } = req.body; // From (current) -> To (viewing)
+    const { fromUserId, toUserId } = req.body;
 
     const fromUser = await userModel.findById(fromUserId);
     const toUser = await userModel.findById(toUserId);
@@ -219,17 +224,33 @@ exports.followUser = async (req, res) => {
         .json({ success: false, message: "No user exists!" });
     }
 
-    if (!fromUser.following.includes(toUser._id)) {
+    const isFollowing = fromUser.following
+      .map((id) => id.toString())
+      .includes(toUser._id.toString());
+
+    const io = req.app.get("io");
+    const connectedUsers = req.app.get("connectedUsers");
+
+    if (!isFollowing) {
       fromUser.following.push(toUser._id);
       toUser.followers.push(fromUser._id);
 
       await fromUser.save();
       await toUser.save();
 
+      const toSocketId = connectedUsers.get(toUserId);
+      if (toSocketId) {
+        io.to(toSocketId).emit("notification", {
+          type: "follow",
+          message: `${fromUser.username} followed you!`,
+          from: fromUserId,
+          timestamp: Date.now(),
+        });
+      }
       return res
         .status(200)
         .json({ success: true, message: "Followed User!", fromUser, toUser });
-    } else if (fromUser.following.includes(toUser._id)) {
+    } else {
       fromUser.following.pull(toUser._id);
       toUser.followers.pull(fromUser._id);
 
@@ -239,14 +260,11 @@ exports.followUser = async (req, res) => {
       return res
         .status(200)
         .json({ success: true, message: "Unfollowed User", fromUser, toUser });
-    } else {
-      return res.status(402).json({
-        success: false,
-        message: "Some Error",
-      });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -262,8 +280,9 @@ exports.getCurrentUser = async (req, res) => {
 
     return res.status(200).json({ success: true, user });
   } catch (error) {
-    console.error("Error in getCurrentUser:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -287,13 +306,14 @@ exports.patchUserDetails = async (req, res) => {
       message: "User details updated successfully",
       user: updatedUser,
     });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ message: "Internal server error" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
-exports.likeController = async (req, res) => {
+exports.likeBlog = async (req, res) => {
   try {
     const { userId, blogId } = req.body;
 
@@ -325,6 +345,8 @@ exports.likeController = async (req, res) => {
         .json({ success: true, message: "removed like", user, blog });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };

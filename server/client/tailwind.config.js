@@ -12,7 +12,7 @@ module.exports = {
         smd: "420px", //small-medium
       },
       fontFamily: {
-        sans: ["serif", "Helvetica", "Arial", "sans-serif"], // Replace with your desired font family
+        sans: ["serif", "Helvetica", "Arial", "sans-serif"],
       },
 
       colors: {
