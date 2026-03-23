@@ -11,7 +11,8 @@ export interface Comment {
 export interface Blog {
   _id: any;
   title: string;
-  description: any;
+  description: string;
+  body: any;
   image: string;
   likes: string[];
   user: User;

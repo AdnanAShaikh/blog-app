@@ -27,6 +27,7 @@ const Header1 = () => {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -44,19 +45,21 @@ const Header1 = () => {
     }
   };
   // get User Data
-  const user = JSON.parse(localStorage.getItem("user") || "");
-
-  const fetchUser = async () => {
-    const hasVisitedBefore = sessionStorage.getItem("hasVisitedBefore");
-    if (!hasVisitedBefore) {
-      toast.success(`Welcome back ${user?.username}`);
-      sessionStorage.setItem("hasVisitedBefore", "true");
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
     }
-  };
+  } catch (err) {
+    console.error("Error parsing user from localStorage", err);
+  }
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!user) {
+      dispatch(logout());
+    }
+  }, [user]);
 
   return (
     <>

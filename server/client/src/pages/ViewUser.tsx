@@ -17,10 +17,11 @@ import { User } from "src/types/User";
 axios.defaults.withCredentials = true;
 
 const ViewUser: React.FC = () => {
-  const { usernameAt } = useParams();
   const navigate = useNavigate();
-  const [userId, setUserId] = useState("");
-  const [isUser, setIsUser] = useState(false);
+  const { usernameAt } = useParams();
+  const localUser = JSON.parse(localStorage.getItem("user") || "");
+  const localUsernameAt = localUser.usernameAt;
+  const [isUser, setIsUser] = useState<Boolean | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [currentUserData, setCurrentUserData] = useState<User | null>(null);
   const [getStarted, setGetStarted] = useState(true);
@@ -38,7 +39,6 @@ const ViewUser: React.FC = () => {
   });
   const [originalFormData, setOriginalFormData] = useState<any | null>(null);
   const maxWords = 160;
-
   const fetchCurrentUser = async () => {
     try {
       const { data } = await axios.get(`${baseAPIUrl}/user/current`, {
@@ -47,7 +47,6 @@ const ViewUser: React.FC = () => {
       if (data?.success) {
         console.log("User:", data);
         setCurrentUserData(data?.user);
-        setUserId(data?.user?._id);
       }
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -58,7 +57,7 @@ const ViewUser: React.FC = () => {
   const fetchUser = async () => {
     const { data } = await axios.get(`${baseAPIUrl}/user/name/${usernameAt}`);
     if (data?.success) {
-      setIsUser(userId === data?.user?._id);
+      setIsUser(data?.user?.usernameAt === localUsernameAt);
       setUserData(data?.user);
       setFormData({
         shortBio: data?.user?.shortBio,
@@ -77,14 +76,9 @@ const ViewUser: React.FC = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      fetchUser();
-    }
-  }, [userId]);
-
-  useEffect(() => {
+    fetchUser();
     fetchCurrentUser();
-  }, []);
+  }, [usernameAt]);
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -209,7 +203,7 @@ const ViewUser: React.FC = () => {
               onClick={async () => {
                 await axios.patch(`${baseAPIUrl}/user/patch`, {
                   bio: bioText,
-                  userId: userId,
+                  userId: userData?._id,
                 });
                 setOriginalBioText(bioText);
                 toast.success("Saved");
@@ -240,190 +234,204 @@ const ViewUser: React.FC = () => {
     p: 4,
   };
 
-  return (
-    <>
-      <Header1 />
-      <div className="min-h-screen flex justify-center">
-        <div className="flex w-[63%] ">
-          <div className="w-3/4 border-r-2 pr-32 ">
-            <div className="flex justify-between items-center pt-14">
-              <p className="text-6xl ">{userData?.username}</p>
-              <Button
-                disableRipple
-                sx={{
-                  backgroundColor: "transparent",
-                  "&:hover": {
-                    backgroundColor: "transparent",
-                    boxShadow: "none",
-                  },
-                  "&:focus": {
-                    color: "black",
-                    boxShadow: "none",
-                  },
-                }}
-                onClick={handleClick}
-              >
-                <MoreHorizIcon
-                  className="hover:cursor-pointer text-gray-500 hover:text-black"
-                  fontSize="large"
-                />
-              </Button>
-              <Menu
-                sx={{
-                  ".MuiMenuItem-root": {
-                    ":hover": {
-                      backgroundColor: "transparent",
-                    },
-                  },
-                  "& .MuiMenu-paper": {
-                    paddingLeft: "1rem",
-                    paddingRight: "1rem",
-                  },
-                }}
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  "aria-labelledby": "basic-button",
-                }}
-              >
-                <MenuItem
-                  sx={{
-                    color: "#6b6b6b",
-                    "&:hover": {
-                      backgroundColor: "transparent", // Remove hover background
-                      color: "#000",
-                    },
-                  }}
-                  className="flex w-full"
-                >
-                  <div
-                    className="flex items-center gap-2"
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      handleClose();
-                      toast.success("Link Copied");
-                    }}
-                  >
-                    <p>Copy Profile Link</p>
-                  </div>
-                </MenuItem>
-              </Menu>
+  const leftContent = (
+    <div>
+      <div className="">
+        <div className="flex justify-between mb-10 ">
+          <p className="text-6xl ">{userData?.username}</p>
+          <Button
+            disableRipple
+            sx={{
+              backgroundColor: "transparent",
+              "&:hover": {
+                backgroundColor: "transparent",
+                boxShadow: "none",
+              },
+              "&:focus": {
+                color: "black",
+                boxShadow: "none",
+              },
+            }}
+            onClick={handleClick}
+          >
+            <MoreHorizIcon
+              className="hover:cursor-pointer text-gray-500 hover:text-black"
+              fontSize="large"
+            />
+          </Button>
+        </div>
+        <Menu
+          sx={{
+            ".MuiMenuItem-root": {
+              ":hover": {
+                backgroundColor: "transparent",
+              },
+            },
+            "& .MuiMenu-paper": {
+              paddingLeft: "1rem",
+              paddingRight: "1rem",
+            },
+          }}
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          <MenuItem
+            sx={{
+              color: "#6b6b6b",
+              "&:hover": {
+                backgroundColor: "transparent", // Remove hover background
+                color: "#000",
+              },
+            }}
+            className="flex w-full"
+          >
+            <div
+              className="flex items-center gap-2"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                handleClose();
+                toast.success("Link Copied");
+              }}
+            >
+              <p>Copy Profile Link</p>
             </div>
-            <div className="mt-10">
-              <TabContext value={value}>
-                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <TabList
-                    onChange={handleChangeTab}
-                    aria-label="lab API tabs example"
-                  >
-                    <Tab label="Home" value="1" />
-                    <Tab label="About" value="2" />
-                  </TabList>
-                </Box>
-                <TabPanel value="1">
-                  <div>
-                    {userData?.blogs?.map((item: any) => (
-                      <div>
-                        <BlogCard
-                          id={item._id}
-                          title={item.title}
-                          description={item.description}
-                          image={item.image}
-                          time={item.createdAt}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </TabPanel>
-                <TabPanel value="2">
-                  <div>
-                    {isUser
-                      ? getStarted
-                        ? getStartedJSX
-                        : TextFieldJSX
-                      : TextFieldJSX}
-                  </div>
-                  <div className="bg-gray-100 mt-10 h-px"></div>
-                  <div className="flex items-center gap-3">
-                    <p
-                      onClick={() => {
-                        navigate(`/${userData?.usernameAt}/following`);
-                      }}
-                      className="text-green-700 cursor-pointer mt-10"
-                    >
-                      {userData?.following.length} Following
-                    </p>
-                    <p
-                      onClick={() => {
-                        navigate(`/${userData?.usernameAt}/followers`);
-                      }}
-                      className="text-green-700 cursor-pointer mt-10"
-                    >
-                      {userData?.followers.length} Followers
-                    </p>
-                  </div>
-                </TabPanel>
-              </TabContext>
+          </MenuItem>
+        </Menu>
+      </div>
+      <div className="">
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList
+              onChange={handleChangeTab}
+              aria-label="lab API tabs example"
+            >
+              <Tab label="Home" value="1" />
+              <Tab label="About" value="2" />
+            </TabList>
+          </Box>
+          <TabPanel value="1">
+            <div>
+              {userData?.blogs?.map((item: any) => (
+                <div>
+                  <BlogCard
+                    id={item._id}
+                    title={item.title}
+                    description={item.description}
+                    image={item.image}
+                    time={item.createdAt}
+                  />
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* 2nd screen */}
-          <div className="pt-14">
-            <div className="pl-10 flex flex-col gap-3 items-start ">
-              <div className="w-20 h-20 rounded-full overflow-hidden">
-                <img
-                  className="object-cover"
-                  src={getCurrentUserImage(userData)}
-                  alt="user"
-                />
-              </div>
-              <p className="font-medium">{userData?.username}</p>
+          </TabPanel>
+          <TabPanel value="2">
+            <div>
+              {isUser
+                ? getStarted
+                  ? getStartedJSX
+                  : TextFieldJSX
+                : TextFieldJSX}
+            </div>
+            <div className="bg-gray-100 mt-10 h-px"></div>
+            <div className="flex items-center gap-3">
               <p
-                className="cursor-pointer"
+                onClick={() => {
+                  navigate(`/${userData?.usernameAt}/following`);
+                }}
+                className="text-green-700 cursor-pointer mt-10"
+              >
+                {userData?.following.length} Following
+              </p>
+              <p
                 onClick={() => {
                   navigate(`/${userData?.usernameAt}/followers`);
                 }}
+                className="text-green-700 cursor-pointer mt-10"
               >
-                {userData?.followers?.length} Followers
+                {userData?.followers.length} Followers
               </p>
-              <p>{userData?.shortBio || ""}</p>
-              {isUser ? (
+            </div>
+          </TabPanel>
+        </TabContext>
+      </div>
+    </div>
+  );
+
+  const rightContent = (
+    <>
+      <div className="pl-10 flex flex-col gap-3 items-start ">
+        <div className="w-20 h-20 rounded-full overflow-hidden">
+          <img
+            className="object-cover"
+            src={getCurrentUserImage(userData)}
+            alt="user"
+          />
+        </div>
+        <p className="font-medium">{userData?.username}</p>
+        <p
+          className="cursor-pointer"
+          onClick={() => {
+            navigate(`/${userData?.usernameAt}/followers`);
+          }}
+        >
+          {userData?.followers?.length} Followers
+        </p>
+        <p>{userData?.shortBio || ""}</p>
+        {currentUserData ? (
+          isUser ? (
+            <button
+              onClick={() => {
+                setIsEditProfileModalVisible(true);
+              }}
+              className="mt-5 text-green-700 hover:text-green-800 "
+            >
+              {" "}
+              Edit Profile
+            </button>
+          ) : (
+            <div>
+              {!currentUserData?.following?.includes(userData?._id) ? (
                 <button
                   onClick={() => {
-                    setIsEditProfileModalVisible(true);
+                    handleFollow();
                   }}
-                  className="mt-5 text-green-700 hover:text-green-800 "
+                  className="px-5 py-2 bg-green-700 text-white rounded-3xl"
                 >
-                  {" "}
-                  Edit Profile
+                  Follow
                 </button>
               ) : (
-                <div>
-                  {!currentUserData?.following?.includes(userData?._id) ? (
-                    <button
-                      onClick={() => {
-                        handleFollow();
-                      }}
-                      className="px-5 py-2 bg-green-700 text-white rounded-3xl"
-                    >
-                      Follow
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => {
-                        handleFollow();
-                      }}
-                      className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
-                    >
-                      Following
-                    </button>
-                  )}
-                </div>
+                <button
+                  onClick={() => {
+                    handleFollow();
+                  }}
+                  className="px-5 py-2 bg-white text-green-700 border border-green-700 rounded-3xl"
+                >
+                  Following
+                </button>
               )}
             </div>
+          )
+        ) : null}
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      <Header1 />
+      <div className="min-h-screen">
+        <div className="flex">
+          {/* 1st Screen */}
+          <div className="w-3/4 border-r-2  ">
+            <div className="w-3/4 mx-auto pt-10 ">{leftContent}</div>
           </div>
+          {/* 2nd screen */}
+          <div className="w-1/4 pt-10">{rightContent}</div>
         </div>
       </div>
 
@@ -503,7 +511,7 @@ const ViewUser: React.FC = () => {
                   await axios.patch(`${baseAPIUrl}/user/patch`, {
                     username: formData?.username,
                     shortBio: formData?.shortBio,
-                    userId: userId,
+                    userId: userData?._id,
                   });
                   setIsEditProfileModalVisible(false);
                 }}

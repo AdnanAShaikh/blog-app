@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
-  })
+  }),
 );
 app.use("/uploads", express.static("uploads"));
 
@@ -40,6 +40,9 @@ app.use("/api/v1/user", userRoutes);
 const blogRoutes = require("./routes/blogRoutes");
 app.use("/api/v1/blog", blogRoutes);
 
+const commentRoutes = require("./routes/commentRoutes");
+app.use("/api/v1/comment", commentRoutes);
+
 // Catch-all handler to serve the React app
 
 // Catch-all handler to serve the React app for all other routes
@@ -51,7 +54,7 @@ const PORT = process.env.PORT || 3715;
 app.listen(PORT, () => {
   console.log(
     `Server running in ${process.env.DEV_MODE} mode on port ${PORT}`.bgGreen
-      .white
+      .white,
   );
 });
 

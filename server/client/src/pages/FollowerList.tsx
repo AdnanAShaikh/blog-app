@@ -71,7 +71,7 @@ const FollowerList = () => {
                       style={{ objectFit: "cover", marginRight: "15px" }}
                     />
 
-                    {user.username}
+                    {user.usessrname}
                   </div>
                 </Link>
               </Col>

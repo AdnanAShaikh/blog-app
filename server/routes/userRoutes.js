@@ -9,7 +9,7 @@ const {
   googleLoginController,
   patchUserDetails,
   getCurrentUser,
-  likeController,
+  likeBlog,
 } = require("../controllers/userController");
 
 const router = express.Router();
@@ -33,7 +33,7 @@ router.get("/current", getCurrentUser);
 router.post("/follow", followUser);
 
 //Like by blogID
-router.post("/like/blog", likeController);
+router.post("/like/blog", likeBlog);
 
 //get user by id
 router.get("/:id", getUserById);
